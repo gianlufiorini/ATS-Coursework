@@ -17,8 +17,13 @@ i <- sample(1:24, 2)
 
 l <- 404
 
-y1 <- Y[j[1],,i[1],1]
-y2 <- Y[j[2],,i[2],1]
+#gaussian
+#59,14,1
+#59,23,1
+#59,16,1
+y1 <- Y[59,,16,1]
+#non-gaussian
+y2 <- Y[59,,13,1]
 
 var(y1)
 var(y2)
@@ -56,7 +61,7 @@ lines(v2, col = "red")
 
 par(mfrow = c(1,2))
 hist(v1, breaks = 15, freq = F)
-hist(v2, breaks = 15, add = T, density = 30, col = "red", freq =F)
+hist(v2, breaks = 20, add = T, density = 30, col = "red", freq =F)
 
 qqPlot(v1)
 qqPlot(v2)
