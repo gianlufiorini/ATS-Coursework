@@ -68,23 +68,38 @@ KF1$Pt1_t
 KF2$Pt1_t
 
 alpha <- .05
-F_alpha_2 <- qchisq(alpha/2, df = 1)
-F_1_alpha_2 <- qchisq(1 - alpha/2, df = 1)
+alpha_bonf <- .05/403
+F_alpha_2 <- qchisq(alpha_bonf/2, df = 1)
+F_1_alpha_2 <- qchisq(1 - alpha_bonf/2, df = 1)
 
-NIS1 <- v1^2/KF1$Pt1_t
+alpha <- .05
+F_alpha_2 <- qchisq(alpha/2, df = 403) / 403
+F_1_alpha_2 <- qchisq(1 - alpha/2, df = 403)/403
+
+NIS1 <- v1[-l]^2/KF1$Ft
 mean(NIS1)
 
-NIS2 <- v2^2/KF2$Pt1_t
+NIS2 <- v2[-l]^2/KF2$Ft
 mean(NIS2)
 
-plot(NIS1, ylim = c(0, max(max(NIS1, NIS2))))
-lines(NIS2, col = "red")
+ts.plot(NIS1, ylim = c(0, max(max(NIS1, NIS2))))
+lines(NIS2, col = "red", type = "b")
+abline(h = F_alpha_2)
+abline(h = F_1_alpha_2)
+
+#https://kalman-filter.com/normalized-innovation-squared/
+sum(NIS1 < F_alpha_2 | NIS1 > F_1_alpha_2)
+sum(NIS2 < F_alpha_2 | NIS2 > F_1_alpha_2)
+403 *.05
 
 KF1$llk
 KF2$llk
 
 acf(v1)
 acf(v2)
+
+Box.test(v1, lag = 20, fitdf = 3, type = "Ljung-Box")
+Box.test(v2, lag = 20, fitdf = 3, type = "Ljung-Box")
 
 shapiro.test(v1)
 shapiro.test(v2)
