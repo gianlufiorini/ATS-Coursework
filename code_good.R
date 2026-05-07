@@ -23,22 +23,24 @@ ts.plot(y2, col = "red")
 lines(y1)
 
 ## Loading Functions ####
-source("ats_lab_2_functions.R")
+source("ats_lab_2_functions_with_mean.R")
 
 # Estimating Kalman Filter ####
 #Setting initial values
-theta0 <- c(.5,2,2)
+theta0 <- c(0,.5,2,2)
 
 theta1_mle <- estimator(y1,theta0)
 theta2_mle <- estimator(y2, theta0)
 
 KF1 <- KF(y1, 
+          theta1_mle$theta_list$hat_omega,
           theta1_mle$theta_list$hat_phi,
           theta1_mle$theta_list$hat_sigma_e,
           theta1_mle$theta_list$hat_sigma_eta)
 KF1
 
 KF2 <- KF(y2, 
+          theta2_mle$theta_list$hat_omega,
           theta2_mle$theta_list$hat_phi,
           theta2_mle$theta_list$hat_sigma_e,
           theta2_mle$theta_list$hat_sigma_eta)
