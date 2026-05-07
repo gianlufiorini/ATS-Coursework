@@ -39,33 +39,25 @@ ggplot(df1, aes(x = time, y = value)) +
   geom_line(color = "steelblue", size = 1) +
   #  geom_point(alpha = 0.5) + optional: adds points to see individual data entries
   theme_minimal() +
-  labs(
-    title = "Gaussian Time Series Plot",
-    x = "Time Index",
-    y = "Value"
-  )
+  labs(x = "Time Index", y = "y1")
 
 ggplot(df2, aes(x = time, y = value)) +
   geom_line(color = "steelblue", size = 1) +
 #  geom_point(alpha = 0.5) + optional: adds points to see individual data entries
   theme_minimal() +
-  labs(
-    title = "Non-Gaussian Time Series Plot",
-    x = "Time Index",
-    y = "Value"
-  ) 
+  labs(x = "Time Index", y = "y2") 
 
 
 #Plotting them together
 #Create a data frame with both series
 df <- data.frame(
   time = seq_along(y1),
-  Gaussian = as.numeric(y1),
-  Not_Gaussian = as.numeric(y2)
+  y1 = as.numeric(y1),
+  y2 = as.numeric(y2)
 )
 
 #Reshape from "wide" to "long"
-df_long <- pivot_longer(df, cols = c("Gaussian", "Not_Gaussian"), 
+df_long <- pivot_longer(df, cols = c("y1", "y2"), 
                         names_to = "Variable", 
                         values_to = "Value")
 
@@ -73,7 +65,7 @@ df_long <- pivot_longer(df, cols = c("Gaussian", "Not_Gaussian"),
 ggplot(df_long, aes(x = time, y = Value, color = Variable)) +
   geom_line(size = 1) +
   theme_minimal() +
-  labs(title = "Overlapping Time Series", x = "Time", y = "Value")
+  labs(title = "Overlapping Time Series", x = "Time", y = "y")
 
 
 ## Loading Functions ####
@@ -121,6 +113,7 @@ ts.plot(y2, ylim = c(min(min(y1,y2)),
                      max(max(y1,y2))))
 lines(KF2$mu_pred, col = "green", lwd = 2)
 
+
 #Now with ggplot
 #Plot with the new layer
 ggplot(df1, aes(x = time)) +
@@ -129,7 +122,7 @@ ggplot(df1, aes(x = time)) +
   theme_minimal() +
   labs(
     title = "Actual Data vs. Kalman Filter Prediction",
-    y = "Value",
+    y = "y1",
     x = "Time"
   )
 
@@ -140,7 +133,7 @@ ggplot(df2, aes(x = time)) +
   theme_minimal() +
   labs(
     title = "Actual Data vs. Kalman Filter Prediction",
-    y = "Value",
+    y = "y2",
     x = "Time"
   )
 
@@ -159,12 +152,12 @@ abline(h = -2, lty = 2, lwd = 1.5)
 
 df_st <- data.frame(
   time = seq_along(st_v1),
-  v1 = as.numeric(st_v1),
-  v2 = as.numeric(st_v2)
+  st_v1 = as.numeric(st_v1),
+  st_v2 = as.numeric(st_v2)
 )
 
 #Reshape to long format for easy plotting
-df_st <- pivot_longer(df_st, cols = c("v1", "v2"), 
+df_st <- pivot_longer(df_st, cols = c("st_v1", "st_v2"), 
                            names_to = "innovation_type", 
                            values_to = "value")
 
@@ -177,11 +170,6 @@ ggplot(df_st, aes(x = time, y = value)) +
   labs(title = "Standardized Innovations (Time Series)",
        subtitle = "Should look like white noise within blue dashed lines",
        y = "Standardized Value")
-
-ggplot(df, aes(x = date, y = unemploy)) +
-  geom_line() +
-  geom_vline(xintercept = as.Date("2007-09-15"),
-             linetype = 2, color = 2, linewidth = 1)
 
 KF1$Pt1_t
 KF2$Pt1_t
