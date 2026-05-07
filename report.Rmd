@@ -1,0 +1,41 @@
+---
+title: "Kalman Filter"
+author: "Tommaso Di Bene \n Gianluca Fiorini \n Nikola Stevanovic \n Riccardo Visentini"
+date: "2026-05-07"
+output: pdf_document
+editor_options: 
+  markdown: 
+    wrap: sentence
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## 1. Introduction
+
+The fMRI (functional magnetic resonance imaging) dataset contains data about the dynamic activity of each of the 70 brain regions defined in the Desikan atlas for 24 patients, measured thorugh changes in the blood-oxygen-level-dependent (BOLD) signal during resting state fMRI (R-fMRI) sessions.
+The data were gathered during the NKI1 study (INSERT CITATION), where each patient was simply asked to "stay awake with eyes open" while dynamic activity was being measured.
+In total there one or two time series per patient, each comprising 404 measurements of the BOLD signal taken at lags of 1400 ms from one another.
+
+In fMRI data the BOLD signal can be imagined as a proxy measurement for neural activity (REFERENCE RIC), which makes time series models for the time-varying location particularly well suited for the task of describing the data generating process.
+In fact, neural activity can be imagined as a latent signal of which we only observe a noisy version, (the BOLD signal), which needs to be filtered in order to recover the values of the unobserved signal - this is exactly the concept behind models for the time-varying location.
+
+![Posterior cingulate cortex](MRI_posterior_cingulate.png){width="300"}
+
+In this report we will focus on two time series that were extracted from the fMRI dataset:
+
+1.  $y1$: the dynamic activity in region 59 for patient 16 during scan 1.
+
+2.  $y2$: the dynamic activity in region 59 for patient 13 during scan 1.
+
+Region 59 in the Desikan atlas corresponds to the right-hand posterior cingulate cortex, shown in Figure 1, which plays a role in spatial navigation, self-identity, and switching attention between internal and external tasks.
+The two time series are plotted in Figure 2.
+
+$y1$ and $y2$ were chosen, respectively, for the (approximately) gaussian, and non-gaussian behavior.
+In this report we fit two models for the time varying location on each time series: one assuming gaussian noise in the measurements, and one assuming t-distributed noise.
+The former is cast into a state-space framework and estimated using the Kalman Filter, while the latter is cast into the framework of Generalized Autoregressive Score models.
+The objective of this report is to understand how the two models compare to one another, and in particular how they differ in performance when moving to a non-gaussian setting.
+
+In section 2 we fit the model assuming gaussian errors on both time series, while in section 3 we fit the model assuming t-distributed errors.
+In section 4 we discuss the differences in the performance of the two models.

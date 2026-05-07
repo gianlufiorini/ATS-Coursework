@@ -49,8 +49,8 @@ v1 <- y1 - KF1$mu_pred
 v2 <- y2 - KF2$mu_pred
 
 #Standardized innovations. If assumptions hold they should be IID N(0,1)
-st_v1 <- v1 / KF1$Ft
-st_v2 <- v2 / KF1$Ft
+st_v1 <- v1 / KF1$Ft[-l]
+st_v2 <- v2 / KF1$Ft[-l]
 
 ## Plotting ####
 par(mfrow = c(1,2))
@@ -72,14 +72,6 @@ abline(h = -2, lty = 2, lwd = 1.5)
 
 KF1$Pt1_t
 KF2$Pt1_t
-
-alpha <- .05
-alpha_bonf <- .05
-
-#https://kalman-filter.com/normalized-innovation-squared/
-sum(NIS1 < F_alpha_2 | NIS1 > F_1_alpha_2)
-sum(NIS2 < F_alpha_2 | NIS2 > F_1_alpha_2)
-403 *.05
 
 KF1$llk
 KF2$llk

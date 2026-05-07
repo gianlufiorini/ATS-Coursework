@@ -75,3 +75,16 @@ kurtosis(v2)
 shapiro.test(v1)
 shapiro.test(v2)
 
+#significance of parameters, are they close to nonstationarity
+#Are they close to the initial value
+
+
+#Residuals
+#for a kalman filter innovation error you check uncorrelated and gaussian
+#for score driven model we have innovation error which should be student t
+#ut which should be mds with thin tails
+
+#Extremes should be in innovation error
+#both errors should be uncorrelated
+
+#likelihood values and AIC
