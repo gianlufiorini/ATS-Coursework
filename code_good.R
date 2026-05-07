@@ -48,6 +48,10 @@ KF2
 v1 <- y1 - KF1$mu_pred
 v2 <- y2 - KF2$mu_pred
 
+#Standardized innovations. If assumptions hold they should be IID N(0,1)
+st_v1 <- v1 / KF1$Ft
+st_v2 <- v2 / KF1$Ft
+
 ## Plotting ####
 par(mfrow = c(1,2))
 ts.plot(y1, ylim = c(min(min(y1,y2)),
@@ -59,33 +63,18 @@ ts.plot(y2, ylim = c(min(min(y1,y2)),
 lines(KF2$mu_pred, col = "green", lwd = 2)
 
 par(mfrow = c(1,1))
-ts.plot(v1, ylim = c(min(min(v1,v2)),
-                     max(max(v1,v2))))
-lines(v2, ylim = c(min(min(v1,v2)),
-                   max(max(v1,v2))), col = "red")
+ts.plot(st_v1, ylim = c(min(min(st_v1,st_v2)),
+                     max(max(st_v1,st_v2))))
+lines(st_v2, ylim = c(min(min(st_v1,st_v2)),
+                   max(max(st_v1,st_v2))), col = "red")
+abline(h = 2, lty = 2, lwd = 1.5)
+abline(h = -2, lty = 2, lwd = 1.5)
 
 KF1$Pt1_t
 KF2$Pt1_t
 
 alpha <- .05
-alpha_bonf <- .05/403
-F_alpha_2 <- qchisq(alpha_bonf/2, df = 1)
-F_1_alpha_2 <- qchisq(1 - alpha_bonf/2, df = 1)
-
-alpha <- .05
-F_alpha_2 <- qchisq(alpha/2, df = 403) / 403
-F_1_alpha_2 <- qchisq(1 - alpha/2, df = 403)/403
-
-NIS1 <- v1[-l]^2/KF1$Ft
-mean(NIS1)
-
-NIS2 <- v2[-l]^2/KF2$Ft
-mean(NIS2)
-
-ts.plot(NIS1, ylim = c(0, max(max(NIS1, NIS2))))
-lines(NIS2, col = "red", type = "b")
-abline(h = F_alpha_2)
-abline(h = F_1_alpha_2)
+alpha_bonf <- .05
 
 #https://kalman-filter.com/normalized-innovation-squared/
 sum(NIS1 < F_alpha_2 | NIS1 > F_1_alpha_2)
@@ -95,21 +84,21 @@ sum(NIS2 < F_alpha_2 | NIS2 > F_1_alpha_2)
 KF1$llk
 KF2$llk
 
-acf(v1)
-acf(v2)
+acf(st_v1, lag = 400)
+acf(st_v2, lag = 400)
 
-Box.test(v1, lag = 20, fitdf = 3, type = "Ljung-Box")
-Box.test(v2, lag = 20, fitdf = 3, type = "Ljung-Box")
+Box.test(st_v1, lag = 20, fitdf = 3, type = "Ljung-Box")
+Box.test(st_v2, lag = 20, fitdf = 3, type = "Ljung-Box")
 
-shapiro.test(v1)
-shapiro.test(v2)
+shapiro.test(st_v1)
+shapiro.test(st_v2)
 
-jarque.bera.test(v1)
-jarque.bera.test(v2)
+jarque.bera.test(st_v1)
+jarque.bera.test(st_v2)
 
-ks.test(v1, y = "pnorm")
-ks.test(v2, y = "pnorm")
+ks.test(st_v1, y = "pnorm")
+ks.test(st_v2, y = "pnorm")
 
-qqPlot(v1)
-qqPlot(v2)
+qqPlot(st_v1)
+qqPlot(st_v2)
 
