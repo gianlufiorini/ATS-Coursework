@@ -23,11 +23,11 @@ ts.plot(y2, col = "red")
 lines(y1)
 
 ## Loading Functions ####
-source("ats_lab_2_functions.R")
+source("ats_lab_2_functions_with_mean.R")
 
 # Estimating Kalman Filter ####
 #Setting initial values
-theta0 <- c(.5,1,1)
+theta0 <- c(0,.5,1,1)
 
 theta1_mle <- estimator(y1,theta0)
 theta2_mle <- estimator(y2, theta0)
@@ -51,8 +51,8 @@ v1 <- y1 - KF1$mu_pred
 v2 <- y2 - KF2$mu_pred
 
 #Standardized innovations. If assumptions hold they should be IID N(0,1)
-st_v1 <- v1 / KF1$Ft[-l]
-st_v2 <- v2 / KF1$Ft[-l]
+st_v1 <- v1 / KF1$Ft
+st_v2 <- v2 / KF1$Ft
 
 ## Plotting ####
 par(mfrow = c(1,2))

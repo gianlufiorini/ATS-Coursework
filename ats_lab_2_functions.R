@@ -71,10 +71,15 @@ for(t in 1:(n-1)){
   llk  = llk + dllk[t]
 }
 
+v[t+1] = y[t+1] - mu_pred[t+1]; 
+F[t+1] = P[t+1] + sigma_e^2;
+K[t] = (phi * P[t+1])/F[t+1]
+dllk[t+1] = - 0.5 * (log(F[t+1]) + (v[t+1]^2/F[t+1]))
+llk  = llk + dllk[t+1]
 #llk = sum(dllk)
 
 out <- list(mu_pred = as.ts(mu_pred), llk = llk,
-            Kalman_gain = K, Pt1_t = P,
+            Kalman_gain = K, Pt1_t = P, innov = v,
             Ft = F)
 #out <- list(v, mu_pred)
 
@@ -137,7 +142,7 @@ theta_list <- list(hat_phi = hat_phi,
                    hat_sigma_e = hat_sigma_e,
                    hat_sigma_eta = hat_sigma_eta)
 
-out <- list(theta_list = theta_list, obs_fisher = solve(hat$hessian))
+out <- list(theta_list = theta_list, vcov = solve(hat$hessian))
 
 return(out) 
 }          
