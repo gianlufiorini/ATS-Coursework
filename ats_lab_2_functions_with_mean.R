@@ -71,10 +71,16 @@ KF <-function(y, omega, phi, sigma_e, sigma_eta){
     llk  = llk + dllk[t]
   }
   
+  v[t+1] = y[t+1] - mu_pred[t+1]; 
+  F[t+1] = P[t+1] + sigma_e^2;
+  K[t+1] = (phi * P[t+1])/F[t+1]
+  dllk[t+1] = - 0.5 * (log(F[t+1]) + (v[t+1]^2/F[t+1]))
+  llk  = llk + dllk[t+1]
+  
   #llk = sum(dllk)
   
   out <- list(mu_pred = as.ts(mu_pred), llk = llk,
-              Kalman_gain = K, Pt1_t = P,
+              Kalman_gain = K, Pt1_t = P, innov = v,
               Ft = F)
   #out <- list(v, mu_pred)
   
@@ -124,7 +130,8 @@ estimator <- function(y,par){
   theta_0 <- c(omega, phi, sigma_e, sigma_eta)
   
   #hat = nlminb(theta_0, loglikelihood)
-  hat = nlminb(start = theta_0, objective = loglikelihood, y = y)
+  hat = optim(par = theta_0, fn = loglikelihood, y = y,
+              hessian = T)
   hat_omega <- hat$par[1]
   hat_phi <- hat$par[2]
   hat_sigma_e   <- hat$par[3]
@@ -139,7 +146,7 @@ estimator <- function(y,par){
                      hat_sigma_e = hat_sigma_e,
                      hat_sigma_eta = hat_sigma_eta)
   
-  out <- list(theta_list = theta_list)
+  out <- list(theta_list = theta_list, vcov = solve(hat$hessian))
   
   return(out) 
 }          
