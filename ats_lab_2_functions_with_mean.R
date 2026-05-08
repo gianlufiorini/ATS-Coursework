@@ -124,7 +124,8 @@ estimator <- function(y,par){
   theta_0 <- c(omega, phi, sigma_e, sigma_eta)
   
   #hat = nlminb(theta_0, loglikelihood)
-  hat = nlminb(start = theta_0, objective = loglikelihood, y = y)
+  hat = optim(par = theta_0, fn = loglikelihood, y = y,
+              hessian = T)
   hat_omega <- hat$par[1]
   hat_phi <- hat$par[2]
   hat_sigma_e   <- hat$par[3]
@@ -139,7 +140,7 @@ estimator <- function(y,par){
                      hat_sigma_e = hat_sigma_e,
                      hat_sigma_eta = hat_sigma_eta)
   
-  out <- list(theta_list = theta_list)
+  out <- list(theta_list = theta_list, obs_fisher = solve(hat$hessian))
   
   return(out) 
 }          

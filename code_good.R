@@ -23,11 +23,11 @@ ts.plot(y2, col = "red")
 lines(y1)
 
 ## Loading Functions ####
-source("ats_lab_2_functions_with_mean.R")
+source("ats_lab_2_functions.R")
 
 # Estimating Kalman Filter ####
 #Setting initial values
-theta0 <- c(0,.5,2,2)
+theta0 <- c(.5,1,1)
 
 theta1_mle <- estimator(y1,theta0)
 theta2_mle <- estimator(y2, theta0)

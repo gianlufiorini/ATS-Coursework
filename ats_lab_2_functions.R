@@ -122,7 +122,8 @@ sigma_eta <- par[3]
 theta_0 <- c(phi, sigma_e, sigma_eta)
 
 #hat = nlminb(theta_0, loglikelihood)
-hat = nlminb(start = theta_0, objective = loglikelihood, y = y)
+hat = optim(par = theta_0, fn = loglikelihood, y = y,
+            hessian = T)
 
 hat_phi = hat$par[1]
 hat_sigma_e   <- hat$par[2]
@@ -136,7 +137,7 @@ theta_list <- list(hat_phi = hat_phi,
                    hat_sigma_e = hat_sigma_e,
                    hat_sigma_eta = hat_sigma_eta)
 
-out <- list(theta_list = theta_list)
+out <- list(theta_list = theta_list, obs_fisher = solve(hat$hessian))
 
 return(out) 
 }          
