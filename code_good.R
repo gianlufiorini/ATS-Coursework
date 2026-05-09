@@ -51,8 +51,8 @@ v1 <- y1 - KF1$mu_pred
 v2 <- y2 - KF2$mu_pred
 
 #Standardized innovations. If assumptions hold they should be IID N(0,1)
-st_v1 <- v1 / KF1$Ft
-st_v2 <- v2 / KF1$Ft
+st_v1 <- v1 / sqrt(KF1$Ft)
+st_v2 <- v2 / sqrt(KF1$Ft)
 
 ## Plotting ####
 par(mfrow = c(1,2))
