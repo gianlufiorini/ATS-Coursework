@@ -34,7 +34,7 @@ The data were gathered during the NKI1 study (INSERT CITATION), where each patie
 There are one or two time series per patient, each comprising 404 measurements of the BOLD signal taken at lags of 1400 ms from one another.
 
 In fMRI data the BOLD signal can be imagined as a proxy measurement for neural activity (REFERENCE RIC), which makes time series models for the time-varying location well suited for the task of describing the data generating process.
-In fact, neural activity can be imagined as a latent signal of which we only observe a noisy version, (the BOLD signal), which needs to be filtered in order to recover the values of the unobserved signal -- this is exactly the concept behind models for the time-varying location.
+In fact, neural activity can be imagined as a latent signal evolving over time of which we only observe a noisy version, (the BOLD signal). In order to recover the latent signal we need to apply some type of filtering to the noisy observed values; this is exactly the conceptual setting behind models for the time-varying location.
 
 ![Posterior cingulate cortex](MRI_posterior_cingulate.png){width="300"}
 
