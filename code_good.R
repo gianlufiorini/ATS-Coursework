@@ -1,5 +1,6 @@
 #loading libraries ####
 library(ggplot2)
+library(tidyverse)
 library(tseries)
 library(car)
 library(MASS)
@@ -30,7 +31,21 @@ source("ats_lab_2_functions_with_mean.R")
 theta0 <- c(0,.5,1,1)
 
 theta1_mle <- estimator(y1,theta0)
+mod_1_coef <- data.frame(Estimate = unlist(theta1_mle$theta_list),
+                        Std.Err = theta1_mle$vcov |> diag() |> sqrt(),
+                        row.names = c("omega", "phi", "sigma_epsilon", "sigma_eta")) |> 
+  mutate(z_stat = Estimate/Std.Err) |> 
+  mutate(p_value = 2*(1-pnorm(abs(z_stat))))
+mod_1_coef[3:4, 3:4] <- NA
+
 theta2_mle <- estimator(y2, theta0)
+
+mod_2_coef <- data.frame(Estimate = unlist(theta2_mle$theta_list),
+                         Std.Err = theta2_mle$vcov |> diag() |> sqrt(),
+                         row.names = c("omega", "phi", "sigma_epsilon", "sigma_eta")) |> 
+  mutate(z_stat = Estimate/Std.Err) |> 
+  mutate(p_value = 2*(1-pnorm(abs(z_stat))))
+mod_2_coef[3:4, 3:4] <- NA
 
 KF1 <- KF(y1, 
           theta1_mle$theta_list$hat_omega,
@@ -39,12 +54,17 @@ KF1 <- KF(y1,
           theta1_mle$theta_list$hat_sigma_eta)
 KF1
 
+ll_AIC_1 <- c(log.likelihood = KF1$llk, AIC = -2*KF1$llk + 2*nrow(mod_1_coef))
+
 KF2 <- KF(y2, 
           theta2_mle$theta_list$hat_omega,
           theta2_mle$theta_list$hat_phi,
           theta2_mle$theta_list$hat_sigma_e,
           theta2_mle$theta_list$hat_sigma_eta)
 KF2
+
+
+ll_AIC_2 <- c(log.likelihood = KF2$llk, AIC = -2*KF2$llk + 2*nrow(mod_2_coef))
 
 ## Computing innovations ####
 v1 <- y1 - KF1$mu_pred
@@ -66,9 +86,9 @@ lines(KF2$mu_pred, col = "green", lwd = 2)
 
 par(mfrow = c(1,1))
 ts.plot(st_v1, ylim = c(min(min(st_v1,st_v2)),
-                     max(max(st_v1,st_v2))))
+                        max(max(st_v1,st_v2))))
 lines(st_v2, ylim = c(min(min(st_v1,st_v2)),
-                   max(max(st_v1,st_v2))), col = "red")
+                      max(max(st_v1,st_v2))), col = "red")
 abline(h = 2, lty = 2, lwd = 1.5)
 abline(h = -2, lty = 2, lwd = 1.5)
 

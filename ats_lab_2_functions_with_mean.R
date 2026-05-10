@@ -66,7 +66,7 @@ KF <-function(y, omega, phi, sigma_e, sigma_eta){
     F[t] = P[t] + sigma_e^2;
     K[t] = (phi * P[t])/F[t]
     P[t+1] = phi^2 * P[t] + sigma_eta^2 - K[t]*F[t]*K[t]
-    mu_pred[t+1] = omega + phi * (mu_pred[t] - omega) + K[t]*v[t]
+    mu_pred[t+1] = omega + phi * (mu_pred[t]) + K[t]*v[t]
     dllk[t] = - 0.5 * (log(F[t]) + (v[t]^2/F[t]))
     llk  = llk + dllk[t]
   }

@@ -1,25 +1,30 @@
 ---
-title: "Kalman Filter"
+title: "Advanced Time Series Coursework"
 author: 
   - "Tommaso Di Bene, MAT: 0001234555"
   - "Gianluca Fiorini, MAT: 0001223301"
   - "Nikola Stevanovic, MAT: 000"
   - "Riccardo Visentini, MAT: 000"
 
-date: "2026-05-07"
+date: "A.Y. 2025/2026"
 output: pdf_document
 editor_options: 
   markdown: 
     wrap: sentence
 ---
+	
+\newcommand{\indep}{\perp \!\!\! \perp}
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(echo = FALSE, comment = NA)
 
 #loading libraries ####
 library(ggplot2)
 library(tseries)
+library(knitr)
+library(kableExtra)
 library(carData)
+library(tidyverse)
 library(car)
 library(MASS)
 library(tidyr)
@@ -33,16 +38,16 @@ The fMRI (functional Magnetic Resonance Imaging) dataset contains data about the
 The data were gathered during the NKI1 study (INSERT CITATION), where each patient was simply asked to "stay awake with eyes open" while dynamic activity was being measured.
 There are one or two time series per patient, each comprising 404 measurements of the BOLD signal taken at lags of 1400 ms from one another.
 
-In fMRI data the BOLD signal can be imagined as a proxy measurement for neural activity (REFERENCE RIC), which makes time series models for the time-varying location well suited for the task of describing the data generating process.
-In fact, neural activity can be imagined as a latent signal evolving over time of which we only observe a noisy version, (the BOLD signal). In order to recover the latent signal we need to apply some type of filtering to the noisy observed values; this is exactly the conceptual setting behind models for the time-varying location.
+In fMRI data the BOLD signal can be imagined as a proxy measurement for neural activity (REFERENCE RIC), which makes time series models for the time-varying location well-suited for the task of describing the data generating process.
+In fact, neural activity can be imagined as a latent signal evolving over time of which we only observe a noisy version, (the BOLD signal). In order to recover the latent signal, we need to apply some type of filtering to the noisy observed values; this is exactly the conceptual setting behind models for the time-varying location.
 
 ![Posterior cingulate cortex](MRI_posterior_cingulate.png){width="300"}
 
 In this report we will focus on two time series extracted from the fMRI dataset:
 
-1.  $y1$: the dynamic activity in region 59 for patient 16 during scan 1.
+1.  $y_1$: the dynamic activity in region 59 for patient 16 during scan 1.
 
-2.  $y2$: the dynamic activity in region 59 for patient 13 during scan 1.
+2.  $y_2$: the dynamic activity in region 59 for patient 13 during scan 1.
 
 Region 59 in the Desikan atlas corresponds to the right-hand posterior cingulate cortex, shown in Figure 1, which plays a role in spatial navigation, self-identity, and switching attention between internal and external tasks.
 The two time series are plotted in Figure 2.
@@ -57,7 +62,7 @@ y1 <- Y[59,,16,1]
 y2 <- Y[59,,13,1]
 ```
 
-```{r echo=F, fig.height=3, fig.width=8, fig.cap="Time series $y1$ and $y2$"}
+```{r echo=F, fig.height=3, fig.width=8, fig.cap="Time series $y_1$ and $y_2$"}
 #Plotting them together
 #Create a data frame with both series
 bold_df <- data.frame(
@@ -78,10 +83,88 @@ ggplot(bold_df_long, aes(x = time, y = Value, color = Variable)) +
   labs(x = "Time", y = "BOLD")
 ```
 
-$y1$ and $y2$ were chosen, respectively, for the (approximately) gaussian, and non-gaussian behavior.
+$y_1$ and $y_2$ were chosen, respectively, for the (approximately) gaussian, and non-gaussian behavior.
 In this report we fit two models for the time varying location on each time series: one which assumes gaussian noise in the measurements, and one which assumes t-distributed noise.
 The former is cast into a state-space framework and estimated using the Kalman Filter, while the latter is cast into the framework of Generalized Autoregressive Score (GAS) models.
 The objective of this report is to understand how the two models compare to one another, and in particular how they differ in performance when moving to a non-gaussian setting.
 
 In section 2 we give a brief preliminary analysis of the time series. In section 3 we fit the model assuming gaussian errors on both time series, while in section 4 we fit the model assuming t-distributed errors.
 In section 5 we discuss the differences in the performance of the two models.
+
+## 2. Preliminary Analysis
+
+## 3. Time-varying Location model with Gaussian Noise
+As mentioned in the introduction, the BOLD signal can be seen as the noisy version of a latent signal, which in our case can be imagined as neural activity. Let $y_t$ denote the measurement at time $t$, and let $\mu_t$ denote the latent signal at time $t$. The simplest statistical model that can represent the process generating the noisy measurements is the following:
+$$ 
+\begin{aligned}
+&y_t = \mu_t + \epsilon_t\,,\; \epsilon_t \stackrel{iid}{\sim} N(0,\sigma_\epsilon^2)& \qquad(1)\\
+&\mu_{t+1} = \omega + \phi\mu_t + \eta_t \,,\; \eta_t \stackrel{iid}{\sim} N(0, \sigma_\eta^2)& \qquad(2) \\
+&\{\epsilon_t\} \indep \{\eta_t\}
+\end{aligned}
+$$
+
+This model is an example of a state space model. Equation (2) is the "state equation", which describes how the latent signal (or state) evolves over time. The latent signal is what we refer to as the time-varying location, since it can be imagined as a location parameter evolving over time. In particular, here we are assuming the evolution of the state is autoregressive of order 1, (i.e. it only depends directly on the previous state), with gaussian IID error terms. 
+Equation (1) is the "measurement equation", which describes how our observed values are only a noisy version of the latent signal. In particular, here we are assuming that the noise added to measurements is gaussian IID, and independent from the noise driving the evolution of the unobserved state. 
+Because of this, the model described above is also referred to as an AR(1) + gaussian noise model.
+The gaussianity assumption may be unrealistic at times, (as we will see when estimating the model for $y_2$), and departures from it may harm the accuracy of our model. 
+
+Of course, more complex state space models could be formulated, however it seems sensible to start with the simplest one to see how it does. Besides, it is possible to show that the model described above can be reformulated as an ARMA(1,1) model, which makes its use even more sensible based on what we noted in the preliminary analyses of section 2.
+
+The static parameters in the model, $\omega,\; \phi,\; \sigma_\epsilon,\; \sigma_\eta$, can be estimated using Maximum Likelihood (ML) estimation, whereas the latent states are estimated using a recursive algorithm known as the Kalman Filter. The Kalman Filter provides optimal estimates for the states - in a Minimum Mean Squared Error (MMSE) sense - if the gaussianity assumptions are fulfilled. If these fail, the Kalman Filter can still be applied, but it will no longer be optimal.
+
+We will now fit the model to both $y_1$ and $y_2$ and see how it performs in the two cases. For details on the software used for fitting the models, see the Appendix.
+
+### 3.1 Model fitting
+##### AR(1) signal + gaussian noise model for \textbf{$y_1$}
+```{r, fig.align='center'}
+## Loading Functions ####
+source("ats_lab_2_functions_with_mean.R")
+# Estimating Kalman Filter ####
+#Setting initial values
+theta0 <- c(-3,1,4,2)
+
+theta1_mle <- estimator(y1,theta0)
+mod_1_coef <- data.frame(Estimate = unlist(theta1_mle$theta_list),
+                        Std.Err = theta1_mle$vcov |> diag() |> sqrt(),
+                        row.names = c("omega", "phi", "sigma_epsilon", "sigma_eta")) |> 
+  mutate(z_stat = Estimate/Std.Err) |> 
+  mutate(p_value = 2*(1-pnorm(abs(z_stat))))
+mod_1_coef[3:4, 3:4] <- NA
+
+theta2_mle <- estimator(y2, theta0)
+
+mod_2_coef <- data.frame(Estimate = unlist(theta2_mle$theta_list),
+                         Std.Err = theta2_mle$vcov |> diag() |> sqrt(),
+                         row.names = c("omega", "phi", "sigma_epsilon", "sigma_eta")) |> 
+  mutate(z_stat = Estimate/Std.Err) |> 
+  mutate(p_value = 2*(1-pnorm(abs(z_stat))))
+mod_2_coef[3:4, 3:4] <- NA
+
+KF1 <- KF(y1, 
+          theta1_mle$theta_list$hat_omega,
+          theta1_mle$theta_list$hat_phi,
+          theta1_mle$theta_list$hat_sigma_e,
+          theta1_mle$theta_list$hat_sigma_eta)
+
+ll_AIC_1 <- c(log.likelihood = KF1$llk, AIC = -2*KF1$llk + 2*nrow(mod_1_coef))
+
+KF2 <- KF(y2, 
+          theta2_mle$theta_list$hat_omega,
+          theta2_mle$theta_list$hat_phi,
+          theta2_mle$theta_list$hat_sigma_e,
+          theta2_mle$theta_list$hat_sigma_eta)
+
+
+ll_AIC_2 <- c(log.likelihood = KF2$llk, AIC = -2*KF2$llk + 2*nrow(mod_2_coef))
+
+
+```
+```{r, tab.cap="Model output for AR(1) signal + Gaussian noise model for $y_1$"}
+print(mod_1_coef,digits = 2)
+print(ll_AIC_1, digits = 3)
+```
+##### AR(1) signal + gaussian noise model for \textbf{$y_1$}
+```{r, tab.cap="Model output for AR(1) signal + Gaussian noise model for $y_1$"}
+print(mod_2_coef, digits = 3)
+print(ll_AIC_2, digits = 3)
+```
