@@ -131,7 +131,9 @@ estimator <- function(y,par){
   
   #hat = nlminb(theta_0, loglikelihood)
   hat = optim(par = theta_0, fn = loglikelihood, y = y,
-              hessian = T)
+              hessian = T,
+              method = "L-BFGS-B",
+              lower = c(-Inf, -Inf, 0, 0))
   hat_omega <- hat$par[1]
   hat_phi <- hat$par[2]
   hat_sigma_e   <- hat$par[3]

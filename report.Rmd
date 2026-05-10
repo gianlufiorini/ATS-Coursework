@@ -12,16 +12,19 @@ editor_options:
   markdown: 
     wrap: sentence
 ---
-	
+
 \newcommand{\indep}{\perp \!\!\! \perp}
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE, comment = NA)
+knitr::opts_chunk$set(echo = FALSE, comment = NA,
+                      fig.height=3, fig.width=8,
+                      warning = F)
 
 #loading libraries ####
 library(ggplot2)
 library(tseries)
 library(knitr)
+library(latex2exp)
 library(kableExtra)
 library(carData)
 library(tidyverse)
@@ -110,9 +113,10 @@ The gaussianity assumption may be unrealistic at times, (as we will see when est
 
 Of course, more complex state space models could be formulated, however it seems sensible to start with the simplest one to see how it does. Besides, it is possible to show that the model described above can be reformulated as an ARMA(1,1) model, which makes its use even more sensible based on what we noted in the preliminary analyses of section 2.
 
-The static parameters in the model, $\omega,\; \phi,\; \sigma_\epsilon,\; \sigma_\eta$, can be estimated using Maximum Likelihood (ML) estimation, whereas the latent states are estimated using a recursive algorithm known as the Kalman Filter. The Kalman Filter provides optimal estimates for the states - in a Minimum Mean Squared Error (MMSE) sense - if the gaussianity assumptions are fulfilled. If these fail, the Kalman Filter can still be applied, but it will no longer be optimal.
+The static parameters in the model, $\omega,\; \phi,\; \sigma_\epsilon,\; \sigma_\eta$, can be estimated using Maximum Likelihood (ML) estimation, whereas the latent states are estimated using a recursive algorithm known as the Kalman Filter.
+One can prove the Kalman Filter provides optimal estimates for the states - in a Minimum Mean Squared Error (MMSE) sense - if the gaussianity assumptions are fulfilled. If these fail, the Kalman Filter can still be applied, but it will no longer be optimal.
 
-We will now fit the model to both $y_1$ and $y_2$ and see how it performs in the two cases. For details on the software used for fitting the models, see the Appendix.
+We now fit the model to both $y_1$ and $y_2$ and comment on the results. For details on the software used for fitting the models, see the Appendix.
 
 ### 3.1 Model fitting
 ##### AR(1) signal + gaussian noise model for \textbf{$y_1$}
@@ -121,12 +125,12 @@ We will now fit the model to both $y_1$ and $y_2$ and see how it performs in the
 source("ats_lab_2_functions_with_mean.R")
 # Estimating Kalman Filter ####
 #Setting initial values
-theta0 <- c(-3,1,4,2)
+theta0 <- c(0,.5,2,2)
 
 theta1_mle <- estimator(y1,theta0)
 mod_1_coef <- data.frame(Estimate = unlist(theta1_mle$theta_list),
-                        Std.Err = theta1_mle$vcov |> diag() |> sqrt(),
-                        row.names = c("omega", "phi", "sigma_epsilon", "sigma_eta")) |> 
+                         Std.Err = theta1_mle$vcov |> diag() |> sqrt(),
+                         row.names = c("omega", "phi", "sigma_epsilon", "sigma_eta")) |> 
   mutate(z_stat = Estimate/Std.Err) |> 
   mutate(p_value = 2*(1-pnorm(abs(z_stat))))
 mod_1_coef[3:4, 3:4] <- NA
@@ -163,8 +167,151 @@ ll_AIC_2 <- c(log.likelihood = KF2$llk, AIC = -2*KF2$llk + 2*nrow(mod_2_coef))
 print(mod_1_coef,digits = 2)
 print(ll_AIC_1, digits = 3)
 ```
-##### AR(1) signal + gaussian noise model for \textbf{$y_1$}
-```{r, tab.cap="Model output for AR(1) signal + Gaussian noise model for $y_1$"}
+From our estimates, we see that the estimated autoregressive coefficient $\phi$ is significantly different from 0, suggesting there is a significant time dependence between successive values of the signal. The intercept $\omega$ is not significantly different from 0, which makes sense considering that our series appears stationary around 0. Finally, the signal's random error has an estimated standard deviation which is larger than that of the noise. The state estimates for $y_1$, obtained through the Kalman Filter are reported in Figure 3.
+
+```{r, fig.height=4, fig.cap= "Kalman Filter state estimates for $y_1$"}
+df1 <- data.frame(
+  time = seq_along(y1), 
+  value = as.numeric(y1),
+  name = "y1"
+)
+
+df2 <- data.frame(
+  time = seq_along(y2), 
+  value = as.numeric(y2),
+  name = "y2"
+)
+
+
+df1 <- rbind(df1,
+             data.frame(time = seq_along(KF1$mu_pred),
+                        value = KF1$mu_pred,
+                        name = "mupred_1")) |> 
+  mutate(name = factor(name, levels = c("y1", "mupred_1")))
+df2 <- rbind(df2,
+             data.frame(time = seq_along(KF2$mu_pred),
+                        value = KF2$mu_pred,
+                        name = "mupred_2"))|> 
+  mutate(name = factor(name, levels = c("y2", "mupred_2")))
+
+ggplot(df1, aes(x = time, y = value, color = name, linewidth = name)) +
+  geom_line() +
+  theme_minimal() +
+  theme(legend.text = element_text(size = 10)) +
+  labs(
+    title = "Observations vs. Kalman Filter State Estimates",
+    x = "Time") +
+  scale_color_manual(values = c("mupred_1" = "green",
+                                "y1" = "grey3"),
+                     labels = c("mupred_1" = TeX("$\\mu_{t|t-1}$"), 
+                                "y1" = TeX("$y1$")),
+                     name = NULL,) +
+  scale_linewidth_discrete(range = c(.5, .75)) +
+  guides(linewidth = "none") 
+```
+
+
+##### AR(1) signal + gaussian noise model for \textbf{$y_2$}
+```{r, tab.cap="Model output for AR(1) signal + Gaussian noise model for $y_2$"}
 print(mod_2_coef, digits = 3)
 print(ll_AIC_2, digits = 3)
 ```
+
+Again, the estimated autoregressive coefficient $\phi$ is significantly different from 0, suggesting there is a significant time dependence between successive values of the signal. The dependence seems even stronger than for $y_1$, seeing as the estimated coefficient is lager. As in the model for $y_1$, the intercept $\omega$ is not significantly different from 0. The most striking difference between the 2 models is actually in the estimated standard deviations: in the model fitted to $y_2$ they are much larger than in the model fitted to $y_1$. Of course, this makes sense if we consider that we observe a much more variability in the values of $y_2$ compared to $y_1$, as noted in section 2. The state estimates for $y_2$, obtained through the Kalman Filter are reported in Figure 4.
+
+```{r, fig.height=4, fig.cap="Kalman Filter state estimates for $y_2$"}
+ggplot(df2, aes(x = time, y = value, color = name, linewidth = name)) +
+  geom_line() +
+  theme_minimal() +
+  theme(legend.text = element_text(size = 10)) +
+  labs(
+    title = "Observations vs. Kalman Filter State Estimates",
+    x = "Time") +
+  scale_color_manual(values = c("mupred_2" = "green",
+                                "y2" = "grey3"),
+                     labels = c("mupred_2" = TeX("$\\mu_{t|t-1}$"), 
+                                "y2" = TeX("$y1$")),
+                     name = NULL,) +
+  scale_linewidth_discrete(range = c(.5, .75)) +
+  guides(linewidth = "none")
+```
+
+### 3.2 Model Diagnostics
+As mentioned in the beginning of this section, the Kalman Filter relies on some assumptions, and in particular on gaussianity. If these assumptions were to fail, the filter would lose its optimality. We will now run some diagnostics on the two models to see if the assumptions are fulfilled.
+Diagnostics for the Kalman Filter rely on quantities known as innovations. The innovation at time $t$, denoted as $v_t$, is defined as the one-step-ahead prediction error, i.e.:
+$$
+v_t := y_t - \mu_{t|t-1}
+$$
+
+Where $\mu_{t|t-1}$ denotes the Kalman Filter estimate for the latent $\mu_t$ based on the past information set $\mathcal{F}_{t-1}$.
+
+It is possible to show that if the Kalman Filter assumptions are fulfilled, the innovations form a Martingale Difference Sequence (MDS) and are distributed $v_t \stackrel{iid}{\sim}N(0,F_t)$, Where $F_t$ is the innovation variance in the Kalman Filter. To check if the Kalman Filter assumptions are fulfilled, we must check whether the innovations follow the expected behaviour.
+
+Actually, to simplify things, we will work with the standardized innovations $F_t^{-\frac{1}{2}}v_t$, which are still a MDS and are distributed iid $N(0,1)$, making it easier to check for and detect deviations from the expected behavior.
+
+##### Diagnostics for the AR(1) signal + gaussian noise model for \textbf{$y_1$}
+The standardized innovations from the Kalman Filter applied to $y_1$ are shown in Figure 5, their autocorrelation function is shown in Figure 6. A qq-plot for the standardized innovations is shown in figure 7.
+
+```{r}
+
+## Computing innovations ####
+v1 <- y1 - KF1$mu_pred
+v2 <- y2 - KF2$mu_pred
+
+#Standardized innovations. If assumptions hold they should be IID N(0,1)
+st_v1 <- v1 / sqrt(KF1$Ft)
+st_v2 <- v2 / sqrt(KF2$Ft)
+
+df_st_v <- data.frame(time = c(seq_along(v1),
+                               seq_along(v2)),
+                      v = c(st_v1,st_v2),
+                      name = c(rep("v1", 404),
+                               rep("v2", 404))) |> 
+  mutate(name = factor(name),
+         outside = factor(abs(v) > 1.96, labels = c("no", "yes")))
+
+```
+##### Diagnostics for the AR(1) signal + gaussian noise model for \textbf{$y_2$}
+The standardized innovations from the Kalman Filter applied to $y_2$ are shown in Figure 8, their autocorrelation function is shown in Figure 9. A qq-plot for the standardized innovations is shown in figure 10.
+
+\newpage
+```{r}
+ggplot(df_st_v[df_st_v$name == "v1",], aes(x = time, y = v)) +
+  geom_line() +
+  geom_hline(yintercept = c(-1.96,1.96),
+             linetype = "dashed",
+             col = "blue") +
+  ylab(TeX("$F_t^{-1/2}v_t$"))
+```
+```{r, fig.height=4}
+acf(st_v1, lag= 40, main = NA)
+```
+```{r, fig.height=4, fig.width=4, fig.align='center', results='hide', fig.pos="H"}
+par(cex.lab = .7,
+    cex.axis = .7)
+qqPlot(st_v1,
+       xlab = "Normal Quantiles",
+       ylab = "Empirical Quantiles",
+       cex = .7)
+```
+```{r}
+ggplot(df_st_v[df_st_v$name == "v2",], aes(x = time, y = v)) +
+  geom_line() +
+  geom_hline(yintercept = c(-1.96,1.96),
+             linetype = "dashed",
+             col = "blue") +
+  xlab("Time") +
+  ylab(TeX("$F_t^{-1/2}v_t$"))
+```
+```{r, fig.height=4}
+acf(st_v2, lag= 40, main = NA)
+```
+```{r, fig.height=4, fig.width=4, fig.align='center', results='hide', fig.pos="H!"}
+par(cex.lab = .7,
+    cex.axis = .7)
+qqPlot(st_v2,
+       xlab = "Normal Quantiles",
+       ylab = "Empirical Quantiles",
+       cex = .7)
+```
+

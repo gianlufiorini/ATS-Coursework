@@ -128,7 +128,9 @@ theta_0 <- c(phi, sigma_e, sigma_eta)
 
 #hat = nlminb(theta_0, loglikelihood)
 hat = optim(par = theta_0, fn = loglikelihood, y = y,
-            hessian = T)
+            hessian = T,
+            method = "L-BFGS-B",
+            lower = c(-Inf, -Inf, 0, 0))
 
 hat_phi = hat$par[1]
 hat_sigma_e   <- hat$par[2]
