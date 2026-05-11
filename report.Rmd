@@ -26,6 +26,7 @@ library(tseries)
 library(knitr)
 library(latex2exp)
 library(kableExtra)
+library(patchwork)
 library(carData)
 library(tidyverse)
 library(car)
@@ -275,43 +276,66 @@ df_st_v <- data.frame(time = c(seq_along(v1),
 The standardized innovations from the Kalman Filter applied to $y_2$ are shown in Figure 8, their autocorrelation function is shown in Figure 9. A qq-plot for the standardized innovations is shown in figure 10.
 
 \newpage
-```{r}
-ggplot(df_st_v[df_st_v$name == "v1",], aes(x = time, y = v)) +
+
+```{r, fig.height=8, fig.width=7, fig.align='center', fig.cap="Time series of standardized innovations and Histograms. The blue line in the histogram is a standard normal density."}
+g1 <- ggplot(df_st_v, aes(x = time, y = v,
+                          color = name)) +
   geom_line() +
   geom_hline(yintercept = c(-1.96,1.96),
              linetype = "dashed",
              col = "blue") +
-  ylab(TeX("$F_t^{-1/2}v_t$"))
+  theme(legend.position = "none") +
+  ylab(TeX("$F_t^{-1/2}v_t$")) +
+  xlab("Time") +
+  theme(axis.title.y = element_text(angle = 270),
+        axis.text.y = element_text(angle = 270)) +
+  coord_flip()
+
+g2 <- ggplot(df_st_v, aes(x = v, fill = name)) +
+  geom_histogram(aes(y = after_stat(density)), 
+                 position = "identity", 
+                 alpha = 0.4, 
+                 bins = 30) +
+  theme(legend.position = "inside") +
+  scale_fill_discrete(name = "", labels = (c("v1" = "std_innovations_y1",
+                                             "v2" = "std_innovations_y2",
+                                             "royalblue" = "N(0,1)"))) +
+  stat_function(inherit.aes = F, aes(x = v), fun = dnorm, color = "royalblue", linewidth = .3) +
+xlab("") +
+  theme_minimal()
+  
+
+g2/g1+ plot_layout(heights = c(1, 4.5))
+
+
+
 ```
-```{r, fig.height=4}
+\newpage
+
+```{r, fig.height=4, fig.cap="ACF for standardized innovations for y1"}
 acf(st_v1, lag= 40, main = NA)
 ```
-```{r, fig.height=4, fig.width=4, fig.align='center', results='hide', fig.pos="H"}
+
+```{r, fig.height=4, fig.cap="ACF for standardized innovations for y1"}
+acf(st_v2, lag= 40, main = NA)
+```
+
+
+```{r, fig.height=3, fig.width=6, fig.align='center', results='hide', fig.pos="!h", fig.cap="QQplots for standardized innovations"}
 par(cex.lab = .7,
-    cex.axis = .7)
+    cex.axis = .7,
+    cex.main = .7,
+    mfrow = c(1,2),
+    mar = c(3,2,2,1))
 qqPlot(st_v1,
        xlab = "Normal Quantiles",
        ylab = "Empirical Quantiles",
-       cex = .7)
-```
-```{r}
-ggplot(df_st_v[df_st_v$name == "v2",], aes(x = time, y = v)) +
-  geom_line() +
-  geom_hline(yintercept = c(-1.96,1.96),
-             linetype = "dashed",
-             col = "blue") +
-  xlab("Time") +
-  ylab(TeX("$F_t^{-1/2}v_t$"))
-```
-```{r, fig.height=4}
-acf(st_v2, lag= 40, main = NA)
-```
-```{r, fig.height=4, fig.width=4, fig.align='center', results='hide', fig.pos="H!"}
-par(cex.lab = .7,
-    cex.axis = .7)
+       cex = .7,
+       main = "qqplot for std. innovations of y1", id = F)
 qqPlot(st_v2,
        xlab = "Normal Quantiles",
-       ylab = "Empirical Quantiles",
-       cex = .7)
+       ylab = "",
+       cex = .7,
+       main = "qqplot for std. innovations of y2", id = F)
 ```
 
