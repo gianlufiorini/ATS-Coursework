@@ -67,7 +67,7 @@ y1 <- Y[59,,16,1]
 y2 <- Y[59,,13,1]
 ```
 
-```{r echo=F, fig.height=3, fig.width=8, fig.cap="Time series $y_1$ and $y_2$"}
+```{r echo=F, fig.height=3, fig.width=8}
 #Plotting them together
 #Create a data frame with both series
 bold_df <- data.frame(
@@ -95,10 +95,17 @@ In section 2 we give a brief preliminary analysis of the time series. In section
 In section 5 we discuss the differences in the performance of the two models.
 
 ## 2. Preliminary Analysis
-The time series $y1$ is plotted in Figure 1. The series appears stationary in mean and variance.
+The time series $y_1$ is plotted in Figure 1. The series appears stationary in mean and variance.
 The global mean of the series is 0, and the local mean (represented by the green line in the plot), also hovers around 0. The overall variance of the series is 1.69; the skewness is -0.174, and the kurtosis is 2.87, which are quite close to what we would expect from a normal distribution.Figure 3 shows the ACF and PACF for $y_1$. The acf shows a geometric decay of the spikes; the pacf also decays quickly to 0, only showing significant spikes at lag 1 and (although barely) at lag 2. This behaviour is compatible with an AR(1) or ARMA(1,1) process.
+Figure 5 shows a qqplot for $y_1$, comparing its empirical quantiles to the theoretical quantiles from a normal distribution. The plot suggests an approximately normal behaviour; a Shapiro-Wilk test (p-value = 0.3378) also does not reject the hypothesis of normality.
 
-```{r, fig.cap="Time series $y_2$ with robust loess smooth for mean and standard deviation." }
+The time series $y_2$ is plotted in figure 3. Again, the series appears stationary in mean and variance.
+The global mean of the series is 0, and the local mean (represented by the green line in the plot), also hovers around 0. The overall variance of the series is 11.82; the skewness is 0.101, and the kurtosis is 3.44, which suggests a distribution that is symmetric, but with heavier tails than the normal. This seems in line with the extreme observations that can be seen in the series.
+Figure 4 shows the ACF and PACF for $y_2$. Again, the ACF shows a geometric decay of the spikes, although slower than the one for $y_1$, suggesting more persistent correlation; the pacf decays geometrically to 0, again at a slower rate than $y_1$. As before, this behaviour is compatible with an AR(1) or ARMA(1,1) process.
+Figure 5 shows a qqplot for $y_2$. The plot suggests some potential deviation from normality in terms of heavy-tailed; in this case the Shapiro Wilk test rejects the hypothesis of normality (p-value = 0.00103).
+
+
+```{r, fig.cap="Time series $y_1$ with robust loess smooth for mean and standard deviation.", results='hide'}
 fit1 <- loess( y1 ~ time, data = data.frame(y1, time =  1:length(y1)), family = "symmetric",
                degree = 1)$fitted
 df_sd_y1<-data.frame(time = seq_along(y1), fit = fit1, 
@@ -119,6 +126,8 @@ xbar <- mean(y1) # very close to 0, suggesting that the series is stationary wrt
 var <- var(y1) # 1.69,
 kur <- kurtosis(y1) # close to 3, ok!
 skew <- skewness(y1) # again close to 0
+
+shapiro.test(y1) 
 ```
 
 ```{r, fig.cap="ACF and PACF for $y_1$"}
@@ -127,6 +136,59 @@ acf(y1)
 pacf(y1)
 ```
 
+```{r, fig.cap="Time series $y_2$ with robust loess smooth for mean and standard deviation.", results='hide'}
+fit2 <- loess( y2 ~ time, data = data.frame(y2, time =  1:length(y2)),
+               family = "symmetric", degree = 1)$fitted
+
+df_sd_y2<-data.frame(time = seq_along(y2), fit = fit2, value=sqrt(loess(sqrt(devs) ~ time, 
+                      data = data.frame(devs = (y2 - fit2)^2, time = 1:length(y2)), 
+                      family = "symmetric",
+                      degree = 1)$fitted)) %>% 
+                      mutate(ub2 = fit2 + 2*value, lb2 = fit2 - 2*value)
+
+g2<-ggplot(df2, aes(x = time, y = value)) +
+  geom_line(color = "black", linewidth = 0.75) +
+  geom_line(data=df_sd_y2, aes(x = time, y = fit2), color = "green", linewidth = 0.75)+
+  geom_line(data=df_sd_y2, aes(x = time, y = ub2), color = "purple", linewidth = 0.75)+
+  geom_line(data=df_sd_y2, aes(x = time, y = lb2), color = "purple", linewidth = 0.75)+ 
+  theme_minimal() + labs(x = "Time Index", y = "y2")
+g2
+
+xbar <- mean(y2) # very close to 0, suggesting that the series is stationary wrt mean
+var <- var(y2) # 11.82
+kur <- kurtosis(y2) # close to 3, ok!
+skew <- skewness(y2) # again close to 0
+
+shapiro.test(y2)
+```
+
+
+```{r, fig.cap="ACF and PACF for $y_2$"}
+par(mfrow = c(1,2))
+acf(y2)
+pacf(y2)
+```
+
+
+```{r, fig.width=6, fig.height=3, fig.cap="qq-plots for $y_1$ and $y_2$"}
+par(cex.lab = .7,
+    cex.axis = .7,
+    cex.main = .7,
+    mfrow = c(1,2),
+    mar = c(3,2,2,1))
+qqnorm(y1,
+       xlab = "Normal Quantiles",
+       ylab = "Empirical Quantiles",
+       cex = .7,
+       main = "qqplot for y1")
+qqline(y1)
+qqnorm(y2,
+       xlab = "Normal Quantiles",
+       ylab = "",
+       cex = .7,
+       main = "qqplot for y2")
+qqline(y2)
+```
 
 
 ## 3. Time-varying Location model with Gaussian Noise
@@ -201,7 +263,7 @@ ll_AIC_2 <- c(log.likelihood = KF2$llk, AIC = -2*KF2$llk + 2*nrow(mod_2_coef))
 print(mod_1_coef,digits = 2)
 print(ll_AIC_1, digits = 3)
 ```
-From our estimates, we see that the estimated autoregressive coefficient $\phi$ is significantly different from 0, suggesting there is a significant time dependence between successive values of the signal. The intercept $\omega$ is not significantly different from 0, which makes sense considering that our series appears stationary around 0. Finally, the signal's random error has an estimated standard deviation which is larger than that of the noise. The state estimates for $y_1$, obtained through the Kalman Filter are reported in Figure 3.
+From our estimates, we see that the estimated autoregressive coefficient $\phi$ is significantly different from 0, suggesting there is a significant time dependence between successive values of the signal. The intercept $\omega$ is not significantly different from 0, which makes sense considering that our series appears stationary around 0. Finally, the signal's random error has an estimated standard deviation which is larger than that of the noise. The state estimates for $y_1$, obtained through the Kalman Filter are reported in Figure 6.
 
 ```{r, fig.height=4, fig.cap= "Kalman Filter state estimates for $y_1$"}
 df1 <- data.frame(
@@ -251,7 +313,7 @@ print(mod_2_coef, digits = 3)
 print(ll_AIC_2, digits = 3)
 ```
 
-Again, the estimated autoregressive coefficient $\phi$ is significantly different from 0, suggesting there is a significant time dependence between successive values of the signal. The dependence seems even stronger than for $y_1$, seeing as the estimated coefficient is lager. As in the model for $y_1$, the intercept $\omega$ is not significantly different from 0. The most striking difference between the 2 models is actually in the estimated standard deviations: in the model fitted to $y_2$ they are much larger than in the model fitted to $y_1$. Of course, this makes sense if we consider that we observe a much more variability in the values of $y_2$ compared to $y_1$, as noted in section 2. The state estimates for $y_2$, obtained through the Kalman Filter are reported in Figure 4.
+Again, the estimated autoregressive coefficient $\phi$ is significantly different from 0, suggesting there is a significant time dependence between successive values of the signal. The dependence seems even stronger than for $y_1$, seeing as the estimated coefficient is lager, which is in line with what we observed during our preliminary analyses. As in the model for $y_1$, the intercept $\omega$ is not significantly different from 0. The most striking difference between the 2 models is actually in the estimated standard deviations: in the model fitted to $y_2$ they are much larger than in the model fitted to $y_1$. Of course, this makes sense if we consider that we observe a much more variability in the values of $y_2$ compared to $y_1$, as noted in section 2. The state estimates for $y_2$, obtained through the Kalman Filter are reported in Figure 7.
 
 ```{r, fig.height=4, fig.cap="Kalman Filter state estimates for $y_2$"}
 ggplot(df2, aes(x = time, y = value, color = name, linewidth = name)) +
@@ -284,7 +346,7 @@ It is possible to show that if the Kalman Filter assumptions are fulfilled, the 
 Actually, to simplify things, we will work with the standardized innovations $F_t^{-\frac{1}{2}}v_t$, which are still a MDS and are distributed iid $N(0,1)$, making it easier to check for and detect deviations from the expected behavior.
 
 ##### Diagnostics for the AR(1) signal + gaussian noise model for \textbf{$y_1$}
-The standardized innovations from the Kalman Filter applied to $y_1$ and their histogram are shown in Figure 5, their autocorrelation function is shown in Figure 7. A qq-plot for the standardized innovations is shown in figure 9. The standardized innovations seem to hover around 0 and look like a white noise; their acf shows no significant spikes. A Box-Ljung test computed on 20 lags does not reject the hypothesis that the innovations are IID (p-value = 0.7671), further supporting the idea that the model is appropriate. The histogram, the qq-plot, and an estimated kurtosis of 2.95702 suggest that the normality assumption is reasonable; a Shapiro-Wilk test (p-value = 0.8439) and a Jarques-Bera test (p-value = 0.8557) both do not reject the normality assumption. Overall the Kalman Filter assumptions seem appropriate for this model.
+The standardized innovations from the Kalman Filter applied to $y_1$ and their histogram are shown in Figure 7, their autocorrelation function is shown in Figure 8. A qq-plot for the standardized innovations is shown in figure 10. The standardized innovations seem to hover around 0 and look like a white noise; their acf shows no significant spikes. A Box-Ljung test computed on 20 lags does not reject the hypothesis that the innovations are IID (p-value = 0.7671), further supporting the idea that the model is appropriate. The histogram, the qq-plot, and an estimated kurtosis of 2.95702 suggest that the normality assumption is reasonable; a Shapiro-Wilk test (p-value = 0.8439) and a Jarques-Bera test (p-value = 0.8557) both do not reject the normality assumption. Overall the Kalman Filter assumptions seem appropriate for this model.
 
 ```{r, results='hide'}
 
@@ -312,7 +374,7 @@ The main issue with using the Kalman Filter with heavy-tailed data is that the f
 
 \newpage
 
-```{r, fig.height=8, fig.width=7, fig.align='center', fig.cap="Time series of standardized innovations and Histograms. The blue line in the histogram is a standard normal density."}
+```{r, fig.height=8, fig.width=7, fig.align='center', fig.cap="Time series of standardized innovations and Histograms. The blue line in the histogram is a standard normal density.", results='hide'}
 g1 <- ggplot(df_st_v, aes(x = time, y = v,
                           color = name)) +
   geom_line() +
@@ -364,7 +426,7 @@ acf(st_v2, lag= 40, main = NA)
 ```
 
 
-```{r, fig.height=3, fig.width=6, fig.align='center', results='hide', fig.pos="!h", fig.cap="QQplots for standardized innovations"}
+```{r, fig.height=3, fig.width=6, fig.align='center', results='hide', fig.cap="QQplots for standardized innovations"}
 par(cex.lab = .7,
     cex.axis = .7,
     cex.main = .7,
