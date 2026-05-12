@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.5.10)  11 MAY 2026 18:14
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.5.10)  12 MAY 2026 17:09
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -543,76 +543,83 @@ LaTeX Font Info:    External font `lmex10' loaded for size
 (Font)              <7> on input line 125.
 LaTeX Font Info:    External font `lmex10' loaded for size
 (Font)              <5> on input line 125.
-<report_files/figure-latex/unnamed-chunk-2-1.pdf, id=5, 578.16pt x 216.81pt>
-File: report_files/figure-latex/unnamed-chunk-2-1.pdf Graphic file (type pdf)
-<use report_files/figure-latex/unnamed-chunk-2-1.pdf>
-Package pdftex.def Info: report_files/figure-latex/unnamed-chunk-2-1.pdf  used on input line 139.
-(pdftex.def)             Requested size: 578.15858pt x 216.80946pt.
 [1
 
-{c:/Users/comet/AppData/Roaming/TinyTeX/texmf-var/fonts/map/pdftex/updmap/pdftex.map}{c:/Users/comet/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-ec.enc}{c:/Users/comet/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-mathit.enc}{c:/Users/comet/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-rm.enc} <./MRI_posterior_cingulate.png (PNG copy)>] [2{c:/Users/comet/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-mathsy.enc} <./report_files/figure-latex/unnamed-chunk-2-1.pdf>]
-LaTeX Font Info:    Trying to load font information for T1+lmtt on input line 219.
+{c:/Users/comet/AppData/Roaming/TinyTeX/texmf-var/fonts/map/pdftex/updmap/pdftex.map}{c:/Users/comet/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-ec.enc}{c:/Users/comet/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-mathit.enc}{c:/Users/comet/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-rm.enc} <./MRI_posterior_cingulate.png (PNG copy)>]
+<report_files/figure-latex/unnamed-chunk-3-1.pdf, id=20, 578.16pt x 216.81pt>
+File: report_files/figure-latex/unnamed-chunk-3-1.pdf Graphic file (type pdf)
+<use report_files/figure-latex/unnamed-chunk-3-1.pdf>
+Package pdftex.def Info: report_files/figure-latex/unnamed-chunk-3-1.pdf  used on input line 169.
+(pdftex.def)             Requested size: 578.15858pt x 216.80946pt.
+<report_files/figure-latex/unnamed-chunk-4-1.pdf, id=21, 578.16pt x 216.81pt>
+File: report_files/figure-latex/unnamed-chunk-4-1.pdf Graphic file (type pdf)
+<use report_files/figure-latex/unnamed-chunk-4-1.pdf>
+Package pdftex.def Info: report_files/figure-latex/unnamed-chunk-4-1.pdf  used on input line 176.
+(pdftex.def)             Requested size: 578.15858pt x 216.80946pt.
+[2{c:/Users/comet/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-mathsy.enc} <./report_files/figure-latex/unnamed-chunk-3-1.pdf>]
+LaTeX Font Info:    Trying to load font information for T1+lmtt on input line 237.
 (c:/Users/comet/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/lm/t1lmtt.fd
 File: t1lmtt.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
-)
-<report_files/figure-latex/unnamed-chunk-5-1.pdf, id=36, 578.16pt x 289.08pt>
-File: report_files/figure-latex/unnamed-chunk-5-1.pdf Graphic file (type pdf)
-<use report_files/figure-latex/unnamed-chunk-5-1.pdf>
-Package pdftex.def Info: report_files/figure-latex/unnamed-chunk-5-1.pdf  used on input line 243.
-(pdftex.def)             Requested size: 578.15858pt x 289.07928pt.
-<report_files/figure-latex/unnamed-chunk-7-1.pdf, id=37, 578.16pt x 289.08pt>
+) [3 <./report_files/figure-latex/unnamed-chunk-4-1.pdf>]
+<report_files/figure-latex/unnamed-chunk-7-1.pdf, id=52, 578.16pt x 289.08pt>
 File: report_files/figure-latex/unnamed-chunk-7-1.pdf Graphic file (type pdf)
 <use report_files/figure-latex/unnamed-chunk-7-1.pdf>
-Package pdftex.def Info: report_files/figure-latex/unnamed-chunk-7-1.pdf  used on input line 278.
+Package pdftex.def Info: report_files/figure-latex/unnamed-chunk-7-1.pdf  used on input line 261.
 (pdftex.def)             Requested size: 578.15858pt x 289.07928pt.
-[3] [4 <./report_files/figure-latex/unnamed-chunk-5-1.pdf> <./report_files/figure-latex/unnamed-chunk-7-1.pdf>] [5]
-<report_files/figure-latex/unnamed-chunk-9-1.pdf, id=74, 505.89pt x 578.16pt>
+<report_files/figure-latex/unnamed-chunk-9-1.pdf, id=53, 578.16pt x 289.08pt>
 File: report_files/figure-latex/unnamed-chunk-9-1.pdf Graphic file (type pdf)
 <use report_files/figure-latex/unnamed-chunk-9-1.pdf>
-Package pdftex.def Info: report_files/figure-latex/unnamed-chunk-9-1.pdf  used on input line 329.
+Package pdftex.def Info: report_files/figure-latex/unnamed-chunk-9-1.pdf  used on input line 296.
+(pdftex.def)             Requested size: 578.15858pt x 289.07928pt.
+[4 <./report_files/figure-latex/unnamed-chunk-7-1.pdf>] [5 <./report_files/figure-latex/unnamed-chunk-9-1.pdf>] [6]
+<report_files/figure-latex/unnamed-chunk-11-1.pdf, id=86, 505.89pt x 578.16pt>
+File: report_files/figure-latex/unnamed-chunk-11-1.pdf Graphic file (type pdf)
+<use report_files/figure-latex/unnamed-chunk-11-1.pdf>
+Package pdftex.def Info: report_files/figure-latex/unnamed-chunk-11-1.pdf  used on input line 375.
 (pdftex.def)             Requested size: 505.88875pt x 578.15858pt.
 
-Overfull \hbox (36.13373pt too wide) in paragraph at lines 329--330
+Overfull \hbox (36.13373pt too wide) in paragraph at lines 375--376
  [][] 
  []
 
-<report_files/figure-latex/unnamed-chunk-10-1.pdf, id=75, 578.16pt x 289.08pt>
-File: report_files/figure-latex/unnamed-chunk-10-1.pdf Graphic file (type pdf)
-<use report_files/figure-latex/unnamed-chunk-10-1.pdf>
-Package pdftex.def Info: report_files/figure-latex/unnamed-chunk-10-1.pdf  used on input line 339.
-(pdftex.def)             Requested size: 578.15858pt x 289.07928pt.
-<report_files/figure-latex/unnamed-chunk-11-1.pdf, id=76, 578.16pt x 289.08pt>
-File: report_files/figure-latex/unnamed-chunk-11-1.pdf Graphic file (type pdf)
-<use report_files/figure-latex/unnamed-chunk-11-1.pdf>
-Package pdftex.def Info: report_files/figure-latex/unnamed-chunk-11-1.pdf  used on input line 345.
-(pdftex.def)             Requested size: 578.15858pt x 289.07928pt.
-<report_files/figure-latex/unnamed-chunk-12-1.pdf, id=77, 433.62pt x 216.81pt>
+[7] [8 <./report_files/figure-latex/unnamed-chunk-11-1.pdf>]
+<report_files/figure-latex/unnamed-chunk-12-1.pdf, id=106, 578.16pt x 289.08pt>
 File: report_files/figure-latex/unnamed-chunk-12-1.pdf Graphic file (type pdf)
 <use report_files/figure-latex/unnamed-chunk-12-1.pdf>
-Package pdftex.def Info: report_files/figure-latex/unnamed-chunk-12-1.pdf  used on input line 351.
+Package pdftex.def Info: report_files/figure-latex/unnamed-chunk-12-1.pdf  used on input line 442.
+(pdftex.def)             Requested size: 578.15858pt x 289.07928pt.
+<report_files/figure-latex/unnamed-chunk-13-1.pdf, id=107, 578.16pt x 289.08pt>
+File: report_files/figure-latex/unnamed-chunk-13-1.pdf Graphic file (type pdf)
+<use report_files/figure-latex/unnamed-chunk-13-1.pdf>
+Package pdftex.def Info: report_files/figure-latex/unnamed-chunk-13-1.pdf  used on input line 448.
+(pdftex.def)             Requested size: 578.15858pt x 289.07928pt.
+<report_files/figure-latex/unnamed-chunk-14-1.pdf, id=108, 433.62pt x 216.81pt>
+File: report_files/figure-latex/unnamed-chunk-14-1.pdf Graphic file (type pdf)
+<use report_files/figure-latex/unnamed-chunk-14-1.pdf>
+Package pdftex.def Info: report_files/figure-latex/unnamed-chunk-14-1.pdf  used on input line 454.
 (pdftex.def)             Requested size: 433.61894pt x 216.80946pt.
 
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
-[6 <./report_files/figure-latex/unnamed-chunk-9-1.pdf>] [7 <./report_files/figure-latex/unnamed-chunk-10-1.pdf> <./report_files/figure-latex/unnamed-chunk-11-1.pdf>] [8 <./report_files/figure-latex/unnamed-chunk-12-1.pdf>] (./report.aux)
+[9 <./report_files/figure-latex/unnamed-chunk-12-1.pdf>] [10 <./report_files/figure-latex/unnamed-chunk-13-1.pdf> <./report_files/figure-latex/unnamed-chunk-14-1.pdf>] (./report.aux)
  ***********
 LaTeX2e <2025-11-01>
 L3 programming layer <2026-03-20>
  ***********
  ) 
 Here is how much of TeX's memory you used:
- 12883 strings out of 469339
- 203325 string characters out of 5464867
- 627557 words of memory out of 5000000
- 41456 multiletter control sequences out of 15000+600000
+ 12893 strings out of 469339
+ 203757 string characters out of 5464867
+ 623560 words of memory out of 5000000
+ 41463 multiletter control sequences out of 15000+600000
  668197 words of font info for 79 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
- 89i,8n,93p,658b,470s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 89i,8n,93p,658b,458s stack positions out of 10000i,1000n,20000p,200000b,200000s
 <c:/Users/comet/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmbx10.pfb><c:/Users/comet/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmbx12.pfb><c:/Users/comet/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmmi10.pfb><c:/Users/comet/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmmi7.pfb><c:/Users/comet/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr10.pfb><c:/Users/comet/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr12.pfb><c:/Users/comet/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr17.pfb><c:/Users/comet/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr5.pfb><c:/Users/comet/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr7.pfb><c:/Users/comet/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmsy10.pfb><c:/Users/comet/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmsy7.pfb><c:/Users/comet/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmtt10.pfb>
-Output written on report.pdf (8 pages, 389475 bytes).
+Output written on report.pdf (10 pages, 404749 bytes).
 PDF statistics:
- 204 PDF objects out of 1000 (max. 8388607)
- 152 compressed objects within 2 object streams
- 28 named destinations out of 1000 (max. 500000)
- 81 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 221 PDF objects out of 1000 (max. 8388607)
+ 165 compressed objects within 2 object streams
+ 31 named destinations out of 1000 (max. 500000)
+ 86 words of extra memory for PDF output out of 10000 (max. 10000000)
 

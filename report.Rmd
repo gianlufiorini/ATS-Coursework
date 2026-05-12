@@ -22,6 +22,7 @@ knitr::opts_chunk$set(echo = FALSE, comment = NA,
 
 #loading libraries ####
 library(ggplot2)
+library(moments)
 library(tseries)
 library(knitr)
 library(latex2exp)
@@ -75,16 +76,14 @@ bold_df <- data.frame(
   y2 = as.numeric(y2)
 )
 
+df1 <- data.frame(time = seq_along(y1), value = as.numeric(y1))
+df2 <- data.frame(time = seq_along(y2), value = as.numeric(y2))
+
 #Reshape from "wide" to "long"
 bold_df_long <- pivot_longer(bold_df, cols = c("y1", "y2"), 
                              names_to = "Variable", 
                              values_to = "Value")
 
-#Plot
-ggplot(bold_df_long, aes(x = time, y = Value, color = Variable)) +
-  geom_line(linewidth = .6) +
-  theme_minimal() +
-  labs(x = "Time", y = "BOLD")
 ```
 
 $y_1$ and $y_2$ were chosen, respectively, for the (approximately) gaussian, and non-gaussian behavior.
@@ -96,6 +95,39 @@ In section 2 we give a brief preliminary analysis of the time series. In section
 In section 5 we discuss the differences in the performance of the two models.
 
 ## 2. Preliminary Analysis
+The time series $y1$ is plotted in Figure 1. The series appears stationary in mean and variance.
+The global mean of the series is 0, and the local mean (represented by the green line in the plot), also hovers around 0. The overall variance of the series is 1.69; the skewness is -0.174, and the kurtosis is 2.87, which are quite close to what we would expect from a normal distribution.Figure 3 shows the ACF and PACF for $y_1$. The acf shows a geometric decay of the spikes; the pacf also decays quickly to 0, only showing significant spikes at lag 1 and (although barely) at lag 2. This behaviour is compatible with an AR(1) or ARMA(1,1) process.
+
+```{r, fig.cap="Time series $y_2$ with robust loess smooth for mean and standard deviation." }
+fit1 <- loess( y1 ~ time, data = data.frame(y1, time =  1:length(y1)), family = "symmetric",
+               degree = 1)$fitted
+df_sd_y1<-data.frame(time = seq_along(y1), fit = fit1, 
+                     value=sqrt(loess(sqrt(devs) ~ time, 
+                                      data = data.frame(devs = (y1 - fit1)^2, time = 1:length(y1)),                                                                       degree = 1, 
+                                      family = "symmetric")$fitted)) %>% 
+  mutate(ub1 = fit1 + 2*value, lb1 = fit1 - 2*value)
+
+g1<-ggplot(df1, aes(x = time, y = value)) +
+  geom_line(color = "black", linewidth = 0.75) +
+  geom_line(data=df_sd_y1, aes(x = time, y = fit1), color = "green", linewidth = 0.75)+
+  geom_line(data=df_sd_y1, aes(x = time, y = ub1), color = "purple", linewidth = 0.75)+
+  geom_line(data=df_sd_y1, aes(x = time, y = lb1), color = "purple", linewidth = 0.75)+ 
+  theme_minimal() + labs(x = "Time", y = "y1")
+g1
+
+xbar <- mean(y1) # very close to 0, suggesting that the series is stationary wrt mean
+var <- var(y1) # 1.69,
+kur <- kurtosis(y1) # close to 3, ok!
+skew <- skewness(y1) # again close to 0
+```
+
+```{r, fig.cap="ACF and PACF for $y_1$"}
+par(mfrow = c(1,2))
+acf(y1)
+pacf(y1)
+```
+
+
 
 ## 3. Time-varying Location model with Gaussian Noise
 As mentioned in the introduction, the BOLD signal can be seen as the noisy version of a latent signal, which in our case can be imagined as neural activity. Let $y_t$ denote the measurement at time $t$, and let $\mu_t$ denote the latent signal at time $t$. The simplest statistical model that can represent the process generating the noisy measurements is the following:
@@ -127,6 +159,7 @@ source("ats_lab_2_functions_with_mean.R")
 # Estimating Kalman Filter ####
 #Setting initial values
 theta0 <- c(0,.5,2,2)
+theta0_2 <- c(2.5, .5, 0.4, 0.4)
 
 theta1_mle <- estimator(y1,theta0)
 mod_1_coef <- data.frame(Estimate = unlist(theta1_mle$theta_list),
@@ -136,7 +169,7 @@ mod_1_coef <- data.frame(Estimate = unlist(theta1_mle$theta_list),
   mutate(p_value = 2*(1-pnorm(abs(z_stat))))
 mod_1_coef[3:4, 3:4] <- NA
 
-theta2_mle <- estimator(y2, theta0)
+theta2_mle <- estimator(y2, theta0_2)
 
 mod_2_coef <- data.frame(Estimate = unlist(theta2_mle$theta_list),
                          Std.Err = theta2_mle$vcov |> diag() |> sqrt(),
@@ -251,9 +284,9 @@ It is possible to show that if the Kalman Filter assumptions are fulfilled, the 
 Actually, to simplify things, we will work with the standardized innovations $F_t^{-\frac{1}{2}}v_t$, which are still a MDS and are distributed iid $N(0,1)$, making it easier to check for and detect deviations from the expected behavior.
 
 ##### Diagnostics for the AR(1) signal + gaussian noise model for \textbf{$y_1$}
-The standardized innovations from the Kalman Filter applied to $y_1$ are shown in Figure 5, their autocorrelation function is shown in Figure 6. A qq-plot for the standardized innovations is shown in figure 7.
+The standardized innovations from the Kalman Filter applied to $y_1$ and their histogram are shown in Figure 5, their autocorrelation function is shown in Figure 7. A qq-plot for the standardized innovations is shown in figure 9. The standardized innovations seem to hover around 0 and look like a white noise; their acf shows no significant spikes. A Box-Ljung test computed on 20 lags does not reject the hypothesis that the innovations are IID (p-value = 0.7671), further supporting the idea that the model is appropriate. The histogram, the qq-plot, and an estimated kurtosis of 2.95702 suggest that the normality assumption is reasonable; a Shapiro-Wilk test (p-value = 0.8439) and a Jarques-Bera test (p-value = 0.8557) both do not reject the normality assumption. Overall the Kalman Filter assumptions seem appropriate for this model.
 
-```{r}
+```{r, results='hide'}
 
 ## Computing innovations ####
 v1 <- y1 - KF1$mu_pred
@@ -273,7 +306,9 @@ df_st_v <- data.frame(time = c(seq_along(v1),
 
 ```
 ##### Diagnostics for the AR(1) signal + gaussian noise model for \textbf{$y_2$}
-The standardized innovations from the Kalman Filter applied to $y_2$ are shown in Figure 8, their autocorrelation function is shown in Figure 9. A qq-plot for the standardized innovations is shown in figure 10.
+The standardized innovations from the Kalman Filter applied to $y_2$ are shown in Figure 5, their autocorrelation function is shown in Figure 8. A qq-plot for the standardized innovations is shown in figure 9. Again, the standardized innovations seem to hover around 0 and look like a white noise; their acf shows no significant spikes. A Box-Ljung test computed on 20 lags does not reject the hypothesis that the innovations are IID (p-value = 0.7887). However, the histogram and the qq-plot show some concering behavior: clearly the distribution of the innovations is heavy tailed, in fact it has a kurtosis of 13.60813; a Shapiro-Wilk test (p-value $\approx$ 0) and a Jarques-Bera test (p-value $\approx$ 0) both strongly  reject the normality assumption. In light of this, the Kalman Filter assumptions do not seem appropriate, which means the filter is non optimal.
+
+The main issue with using the Kalman Filter with heavy-tailed data is that the filter is very sensitive to extreme observations; if an extreme value is observed at time $t$, the estimated state for time $t+1$, $\mu_{t|t-1}$ will be heavily influenced by that value, which generally reduces the quality of the estimates, because in a sense we are interpreting noise as signal. Score driven models try to tackle this issue by using state updates that are robust to extreme values.
 
 \newpage
 
@@ -281,9 +316,6 @@ The standardized innovations from the Kalman Filter applied to $y_2$ are shown i
 g1 <- ggplot(df_st_v, aes(x = time, y = v,
                           color = name)) +
   geom_line() +
-  geom_hline(yintercept = c(-1.96,1.96),
-             linetype = "dashed",
-             col = "blue") +
   theme(legend.position = "none") +
   ylab(TeX("$F_t^{-1/2}v_t$")) +
   xlab("Time") +
@@ -307,6 +339,17 @@ xlab("") +
 
 g2/g1+ plot_layout(heights = c(1, 4.5))
 
+#Hypotheses tests
+Box.test(st_v1, lag = 20, fitdf = 4, type = "Ljung-Box")
+shapiro.test(st_v1)
+jarque.bera.test(st_v1)
+
+Box.test(st_v2, lag = 20, fitdf = 4, type = "Ljung-Box")
+shapiro.test(st_v2)
+jarque.bera.test(st_v2)
+
+kurtosis(st_v1)
+kurtosis(st_v2)
 
 
 ```

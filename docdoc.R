@@ -25,12 +25,12 @@ g1<-ggplot(df1, aes(x = time, y = value)) +
   theme_minimal() + labs(x = "Time Index", y = "y2")
 g1
 
-#from the plot the time series appears stationary for the mean and for the standard deviation, consequently
-#for the variance too
-#the green line represents the local means and we can grasp from the image that is fluctuating
-#around zero
-#the purple lines are the upper and lower for a 95% CI for the mean.
-#since they are nearly flat, the standard deviation doesn't change too much over time
+# from the plot the time series appears stationary for the mean and for the standard deviation, consequently
+# for the variance too
+# the green line represents the local means and we can grasp from the image that is fluctuating
+# around zero
+# the purple lines are the upper and lower for a 95% CI for the mean.
+# since they are nearly flat, the standard deviation doesn't change too much over time
 
 #table of summary statistics
 xbar <- mean(y1) # very close to 0, suggesting that the series is stationary wrt mean
@@ -43,10 +43,10 @@ skew <- skewness(y1) # again close to 0
 
 acf(y1)
 pacf(y1)
-#The acf graph of our process shows an exponential decay of the spikes, the correlations 
-#start high at lag 1 (around 0.6) and trail off toward zero as the lags increase.
-#The pacf has a significant spike at lag 1 but then at lag 2 the decay is fast to 0.
-#These graphs are compatible both with an AR(1) or ARMA(1,1).
+# The acf graph of our process shows an exponential decay of the spikes, the correlations
+# start high at lag 1 (around 0.6) and trail off toward zero as the lags increase.
+# The pacf has a significant spike at lag 1 but then at lag 2 the decay is fast to 0.
+# These graphs are compatible both with an AR(1) or ARMA(1,1).
 
 qqnorm(y1)
 qqline(y1)

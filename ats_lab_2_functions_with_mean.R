@@ -40,7 +40,7 @@ KF <-function(y, omega, phi, sigma_e, sigma_eta){
   # we here separate the arguments of the function that will be estimated - phi, sigma_e,
   # sigma_eta by the arguments of the function that will not - mu_1|0 and P_1|0 
   
-  m10 = omega
+  m10 = omega / (1-phi)
   P10 = 1
   
   n = NROW(y)
