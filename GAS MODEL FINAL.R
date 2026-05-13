@@ -1,7 +1,5 @@
 #GAS model
-#Filter sequance 
-#The scores
-#Plotting the scores (scaled)  against the innovation of kalman filter
+
 load("fMRI-ROI-time-series.RData")
 #install.packages("pracma", type ="binary")
 #install.packages("gasmodel", type ="binary")
