@@ -17,8 +17,10 @@ editor_options:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, comment = NA,
-                      fig.height=3, fig.width=8,
-                      warning = F)
+                      fig.height=3, fig.width=7,
+                      warning = F, out.extra = "",
+                      fig.align = "left",
+                      fig.pos = "H")
 
 #loading libraries ####
 library(ggplot2)
@@ -67,7 +69,7 @@ y1 <- Y[59,,16,1]
 y2 <- Y[59,,13,1]
 ```
 
-```{r echo=F, fig.height=3, fig.width=8}
+```{r echo=F, fig.height=3, fig.width=7}
 #Plotting them together
 #Create a data frame with both series
 bold_df <- data.frame(
@@ -263,7 +265,7 @@ ll_AIC_2 <- c(log.likelihood = KF2$llk, AIC = -2*KF2$llk + 2*nrow(mod_2_coef))
 print(mod_1_coef,digits = 2)
 print(ll_AIC_1, digits = 3)
 ```
-From our estimates, we see that the estimated autoregressive coefficient $\phi$ is significantly different from 0, suggesting there is a significant time dependence between successive values of the signal. The intercept $\omega$ is not significantly different from 0, which makes sense considering that our series appears stationary around 0. Finally, the signal's random error has an estimated standard deviation which is larger than that of the noise. The state estimates for $y_1$, obtained through the Kalman Filter are reported in Figure 6.
+From our estimates, we see that the estimated autoregressive coefficient $\phi$ is significantly different from 0, suggesting there is a significant time dependence between successive values of the signal. The estimate is also lower than 1, supporting the idea that the process is stationary. The intercept $\omega$ is not significantly different from 0, which makes sense considering that our series appears stationary around 0. Finally, the signal's random error has an estimated standard deviation which is larger than that of the noise. The state estimates for $y_1$, obtained through the Kalman Filter are reported in Figure 7.
 
 ```{r, fig.height=4, fig.cap= "Kalman Filter state estimates for $y_1$"}
 df1 <- data.frame(
@@ -313,7 +315,7 @@ print(mod_2_coef, digits = 3)
 print(ll_AIC_2, digits = 3)
 ```
 
-Again, the estimated autoregressive coefficient $\phi$ is significantly different from 0, suggesting there is a significant time dependence between successive values of the signal. The dependence seems even stronger than for $y_1$, seeing as the estimated coefficient is lager, which is in line with what we observed during our preliminary analyses. As in the model for $y_1$, the intercept $\omega$ is not significantly different from 0. The most striking difference between the 2 models is actually in the estimated standard deviations: in the model fitted to $y_2$ they are much larger than in the model fitted to $y_1$. Of course, this makes sense if we consider that we observe a much more variability in the values of $y_2$ compared to $y_1$, as noted in section 2. The state estimates for $y_2$, obtained through the Kalman Filter are reported in Figure 7.
+Again, the estimated autoregressive coefficient $\phi$ is significantly different from 0, suggesting there is a significant time dependence between successive values of the signal. The estimate falls within the stationarity region, supporting stationarity. The dependence seems even stronger than for $y_1$, seeing as the estimated coefficient is lager, which is in line with what we observed during our preliminary analyses. As in the model for $y_1$, the intercept $\omega$ is not significantly different from 0. The most striking difference between the 2 models is actually in the estimated standard deviations: in the model fitted to $y_2$ they are much larger than in the model fitted to $y_1$. Of course, this makes sense if we consider that we observe a much more variability in the values of $y_2$ compared to $y_1$, as noted in section 2. The state estimates for $y_2$, obtained through the Kalman Filter are reported in Figure 8.
 
 ```{r, fig.height=4, fig.cap="Kalman Filter state estimates for $y_2$"}
 ggplot(df2, aes(x = time, y = value, color = name, linewidth = name)) +
@@ -335,6 +337,8 @@ ggplot(df2, aes(x = time, y = value, color = name, linewidth = name)) +
 ### 3.2 Model Diagnostics
 As mentioned in the beginning of this section, the Kalman Filter relies on some assumptions, and in particular on gaussianity. If these assumptions were to fail, the filter would lose its optimality. We will now run some diagnostics on the two models to see if the assumptions are fulfilled.
 Diagnostics for the Kalman Filter rely on quantities known as innovations. The innovation at time $t$, denoted as $v_t$, is defined as the one-step-ahead prediction error, i.e.:
+
+
 $$
 v_t := y_t - \mu_{t|t-1}
 $$
@@ -346,7 +350,8 @@ It is possible to show that if the Kalman Filter assumptions are fulfilled, the 
 Actually, to simplify things, we will work with the standardized innovations $F_t^{-\frac{1}{2}}v_t$, which are still a MDS and are distributed iid $N(0,1)$, making it easier to check for and detect deviations from the expected behavior.
 
 ##### Diagnostics for the AR(1) signal + gaussian noise model for \textbf{$y_1$}
-The standardized innovations from the Kalman Filter applied to $y_1$ and their histogram are shown in Figure 7, their autocorrelation function is shown in Figure 8. A qq-plot for the standardized innovations is shown in figure 10. The standardized innovations seem to hover around 0 and look like a white noise; their acf shows no significant spikes. A Box-Ljung test computed on 20 lags does not reject the hypothesis that the innovations are IID (p-value = 0.7671), further supporting the idea that the model is appropriate. The histogram, the qq-plot, and an estimated kurtosis of 2.95702 suggest that the normality assumption is reasonable; a Shapiro-Wilk test (p-value = 0.8439) and a Jarques-Bera test (p-value = 0.8557) both do not reject the normality assumption. Overall the Kalman Filter assumptions seem appropriate for this model.
+The standardized innovations from the Kalman Filter applied to $y_1$ and their histogram are shown in Figure 9, their autocorrelation function is shown in Figure 10. A qq-plot for the standardized innovations is shown in figure 12. The standardized innovations seem to hover around 0 and look like a white noise; their acf shows no significant spikes. A Box-Ljung test computed on 20 lags does not reject the hypothesis that the innovations are IID (p-value = 0.7671), further supporting the idea that the model is appropriate. The histogram, the qq-plot, and an estimated kurtosis of 2.95702 suggest that the normality assumption is reasonable; a Shapiro-Wilk test (p-value = 0.8439) and a Jarques-Bera test (p-value = 0.8557) both do not reject the normality assumption. Overall the Kalman Filter assumptions seem appropriate for this model.
+
 
 ```{r, results='hide'}
 
@@ -367,8 +372,10 @@ df_st_v <- data.frame(time = c(seq_along(v1),
          outside = factor(abs(v) > 1.96, labels = c("no", "yes")))
 
 ```
+
+
 ##### Diagnostics for the AR(1) signal + gaussian noise model for \textbf{$y_2$}
-The standardized innovations from the Kalman Filter applied to $y_2$ are shown in Figure 5, their autocorrelation function is shown in Figure 8. A qq-plot for the standardized innovations is shown in figure 9. Again, the standardized innovations seem to hover around 0 and look like a white noise; their acf shows no significant spikes. A Box-Ljung test computed on 20 lags does not reject the hypothesis that the innovations are IID (p-value = 0.7887). However, the histogram and the qq-plot show some concering behavior: clearly the distribution of the innovations is heavy tailed, in fact it has a kurtosis of 13.60813; a Shapiro-Wilk test (p-value $\approx$ 0) and a Jarques-Bera test (p-value $\approx$ 0) both strongly  reject the normality assumption. In light of this, the Kalman Filter assumptions do not seem appropriate, which means the filter is non optimal.
+The standardized innovations from the Kalman Filter applied to $y_2$ are shown in Figure 9, their autocorrelation function is shown in Figure 11. A qq-plot for the standardized innovations is shown in figure 12. Again, the standardized innovations seem to hover around 0 and look like a white noise; their acf shows no significant spikes. A Box-Ljung test computed on 20 lags does not reject the hypothesis that the innovations are IID (p-value = 0.7887). However, the histogram and the qq-plot show some concering behavior: clearly the distribution of the innovations is heavy tailed, in fact it has a kurtosis of 13.60813; a Shapiro-Wilk test (p-value $\approx$ 0) and a Jarques-Bera test (p-value $\approx$ 0) both strongly  reject the normality assumption. In light of this, the Kalman Filter assumptions do not seem appropriate, which means the filter is non optimal.
 
 The main issue with using the Kalman Filter with heavy-tailed data is that the filter is very sensitive to extreme observations; if an extreme value is observed at time $t$, the estimated state for time $t+1$, $\mu_{t|t-1}$ will be heavily influenced by that value, which generally reduces the quality of the estimates, because in a sense we are interpreting noise as signal. Score driven models try to tackle this issue by using state updates that are robust to extreme values.
 
@@ -415,13 +422,16 @@ kurtosis(st_v2)
 
 
 ```
+
 \newpage
+
 
 ```{r, fig.height=4, fig.cap="ACF for standardized innovations for y1"}
 acf(st_v1, lag= 40, main = NA)
 ```
 
-```{r, fig.height=4, fig.cap="ACF for standardized innovations for y1"}
+
+```{r, fig.height=4, fig.cap="ACF for standardized innovations for y2"}
 acf(st_v2, lag= 40, main = NA)
 ```
 
@@ -444,9 +454,12 @@ qqPlot(st_v2,
        main = "qqplot for std. innovations of y2", id = F)
 ```
 
+
 \newpage
 
 
 ## 4. Time-Varying Location Model with Student-t noise
 We concluded the previous section by highlighting the heavy-tailed behavior of the time series $y_2$. This departure from gaussianity makes the use of the Kalman Filter, which assumes gaussian measurement noise, questionable. A more sensible distributional assumption for the measurement noise would be a t distribution, which would better account for the extreme observations.
 However, moving away from gaussianity makes the use of the state-space framework cumbersome, since the likelihood is generally not available in closed form, which leads to computational and inferential challenges. We will thus describe the relationship between our latent signal and the noisy measurements using another kind of models: GAS models. These models allow us to introduce t-distributed measurment noise without additional complications thanks to the fact that the evolution of the parameter is described simply as a function of the past, without the use of any idiosyncratic noise source (e.g. $\eta_t$ in equation (2)), which greatly simplifies estimation and inference.
+
+## 5.
