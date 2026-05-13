@@ -197,6 +197,13 @@ KF2 <- KF(y2,
 # Combine into data frame
 df <- data.frame(t= 1:T_len, u_1 = u_1, innovation   = KF1$innov)
 
+df_mupred <- data.frame(t = rep(1:T_len, 4),
+                        mu_gas = c(mu_t1, mu_t2, KF1$mu_pred, KF2$mu_pred),
+                        mu_kalman = c(KF1$mu_pred, KF2$mu_pred),
+                        name = factor(c(rep(c("y1","y2", "y1", "y2"), each = T_len))),
+                        method = factor(c(rep("GAS Estimate", T_len * 2),
+                                          rep("Kalman Filter Estimate", T_len * 2))))
+
 # Plot
 ggplot(df, aes(x = t)) +
   geom_line(aes(y = u_1, colour = "u"), linewidth = 0.7) +
@@ -246,3 +253,15 @@ ggplot(df, aes(x = t)) +
       "v" = expression(v[t])
     )
   )
+
+#Comparing estimated states
+ggplot(data = df_mupred,
+       aes(x = t)) +
+  geom_line(aes(y = mu_gas), col = "green") +
+  geom_line(aes(y = mu_kalman), col = "red", linetype = "dashed") +
+  geom_point(aes(y = mu_kalman), size = .1, pch = 5) +
+  facet_grid(rows = vars(name)) +
+  ylab("Estimated States") +
+  xlab("Time") +
+  scale_color_manual(values = c("Kalman Filter estimates" = "red",
+                                "GAS estimates" = "green"))
