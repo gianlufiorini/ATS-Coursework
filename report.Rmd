@@ -21,7 +21,6 @@ knitr::opts_chunk$set(echo = FALSE, comment = NA,
                       warning = F, out.extra = "",
                       fig.align = "left",
                       fig.pos = "H")
-
 #loading libraries ####
 library(ggplot2)
 library(gasmodel)
@@ -107,7 +106,6 @@ The global mean of the series is 0, and the local mean (represented by the green
 Figure 4 shows the ACF and PACF for $y_2$. Again, the ACF shows a geometric decay of the spikes, although slower than the one for $y_1$, suggesting more persistent correlation; the pacf decays geometrically to 0, again at a slower rate than $y_1$. As before, this behaviour is compatible with an AR(1) or ARMA(1,1) process.
 Figure 5 shows a qqplot for $y_2$. The plot suggests some potential deviation from normality in terms of heavy-tailed; in this case the Shapiro Wilk test rejects the hypothesis of normality (p-value = 0.00103).
 
-
 ```{r, fig.cap="Time series $y_1$ with robust loess smooth for mean and standard deviation.", results='hide'}
 fit1 <- loess( y1 ~ time, data = data.frame(y1, time =  1:length(y1)), family = "symmetric",
                degree = 1)$fitted
@@ -144,10 +142,10 @@ fit2 <- loess( y2 ~ time, data = data.frame(y2, time =  1:length(y2)),
                family = "symmetric", degree = 1)$fitted
 
 df_sd_y2<-data.frame(time = seq_along(y2), fit = fit2, value=sqrt(loess(sqrt(devs) ~ time, 
-                      data = data.frame(devs = (y2 - fit2)^2, time = 1:length(y2)), 
-                      family = "symmetric",
-                      degree = 1)$fitted)) %>% 
-                      mutate(ub2 = fit2 + 2*value, lb2 = fit2 - 2*value)
+                                                                        data = data.frame(devs = (y2 - fit2)^2, time = 1:length(y2)), 
+                                                                        family = "symmetric",
+                                                                        degree = 1)$fitted)) %>% 
+  mutate(ub2 = fit2 + 2*value, lb2 = fit2 - 2*value)
 
 g2<-ggplot(df2, aes(x = time, y = value)) +
   geom_line(color = "black", linewidth = 0.75) +
@@ -268,7 +266,7 @@ print(ll_AIC_1, digits = 3)
 ```
 From our estimates, we see that the estimated autoregressive coefficient $\phi$ is significantly different from 0, suggesting there is a significant time dependence between successive values of the signal. The estimate is also lower than 1, supporting the idea that the process is stationary. The intercept $\omega$ is not significantly different from 0, which makes sense considering that our series appears stationary around 0. Finally, the signal's random error has an estimated standard deviation which is larger than that of the noise. The state estimates for $y_1$, obtained through the Kalman Filter are reported in Figure 7.
 
-```{r, fig.height=4, fig.cap= "Kalman Filter state estimates for $y_1$"}
+```{r, fig.cap= "Kalman Filter state estimates for $y_1$"}
 df1 <- data.frame(
   time = seq_along(y1), 
   value = as.numeric(y1),
@@ -318,7 +316,7 @@ print(ll_AIC_2, digits = 3)
 
 Again, the estimated autoregressive coefficient $\phi$ is significantly different from 0, suggesting there is a significant time dependence between successive values of the signal. The estimate falls within the stationarity region, supporting stationarity. The dependence seems even stronger than for $y_1$, seeing as the estimated coefficient is lager, which is in line with what we observed during our preliminary analyses. As in the model for $y_1$, the intercept $\omega$ is not significantly different from 0. The most striking difference between the 2 models is actually in the estimated standard deviations: in the model fitted to $y_2$ they are much larger than in the model fitted to $y_1$. Of course, this makes sense if we consider that we observe a much more variability in the values of $y_2$ compared to $y_1$, as noted in section 2. The state estimates for $y_2$, obtained through the Kalman Filter are reported in Figure 8.
 
-```{r, fig.height=4, fig.cap="Kalman Filter state estimates for $y_2$"}
+```{r, fig.cap="Kalman Filter state estimates for $y_2$"}
 ggplot(df2, aes(x = time, y = value, color = name, linewidth = name)) +
   geom_line() +
   theme_minimal() +
@@ -405,9 +403,9 @@ g2 <- ggplot(df_st_v, aes(x = v, fill = name)) +
                                              "v2" = "std_innovations_y2",
                                              "royalblue" = "N(0,1)"))) +
   stat_function(inherit.aes = F, aes(x = v), fun = dnorm, color = "royalblue", linewidth = .3) +
-xlab("") +
+  xlab("") +
   theme_minimal()
-  
+
 
 g2/g1+ plot_layout(heights = c(1, 4.5))
 
@@ -434,7 +432,7 @@ acf(st_v1, lag= 40, main = NA)
 ```
 
 
-```{r, fig.cap="ACF for standardized innovations for $y_$2"}
+```{r, fig.cap="ACF for standardized innovations for $y_2$"}
 acf(st_v2, lag= 40, main = NA)
 ```
 
@@ -493,16 +491,21 @@ T_len     <- length(y1)
 mu_t1      <- gas_y1$fit$par_tv[, 1]          # filtered mean
 sigma_est <- (gas_y1$fit$coef_est["var"]) # static variance (if estimated)
 
-gas_y1
+with(gas_y1$fit, data.frame(Estimate = coef_est, Std.Err = coef_sd, z_stat = coef_zstat, p_value = coef_pval)) |> print(digits = 3)
+data.frame(log.likelihood = sum(gas_y1$fit$loglik_tv), AIC = gas_y1$fit$aic,
+           row.names = NULL) |> 
+  print(digits = 3)
 
 ```
 We see that the estimates for $\omega$ and $\phi$ are very close to the ones produced by the Kalman Filter. The log-likelihood and the AIC are also very similar, suggesting a very similar fit. These facts are quickly explained if we look at the estimated value for $\nu$. As expected, since $y_1$ is approximately gaussian, the model estimated a very large number of degrees of freedom, making it so that the noise in our measurements is basically gaussian. It is possible to show that a GAS model with gaussian noise and a state space model like the one in section 3 are almost equivalent, (it would suffice to consider the Kalman Filter in its innovation form). The slightly worse fit achieved by the GAS model simply comes from the fact that there are more parameters in need of estimation compared to the state space model with the Kalman Filter.
-On the same note, it is interesting to note that the $\alpha$ parameter in this model is very similar to the steady-state Kalman gain for our Kalman Filter, which is equal to 0.5011753.
+On the same note, it is interesting to note that the $\alpha$ parameter in this model is very similar to the steady-state Kalman gain for our Kalman Filter, which is equal to 0.501, again reinforcing the idea that the two models are equivalent.
 
-Figure 13 shows the graph of state estimates from the GAS model for $y_1$, together with the scaled score values $u_t$ against the raw innovations for the gas model, i.e.  the differences between the observed values and the estimated states: $v_t := y_t -\mu_t\footnotemark$.
-\footnotetext{Note that in GAS models, since the estimated state is a deterministic function of the past, the subscript $\|t-1$ used for the Kalman filter can be (and is) dropped, i.e. for GAS models $\mu_{t|t-1}=\mu_t$}.
+Figure 13 shows the graph of state estimates from the GAS model for $y_1$, together with the scaled score values $u_t$ against the raw innovations for the gas model, i.e.  the differences between the observed values and the estimated states: $v_t := y_t -\mu_t$.\footnotemark
+\footnotetext{Note that in GAS models, since the estimated state is a deterministic function
+of the past, the subscript $\|t-1$ used for the Kalman filter can be (and is) dropped, i.e. for GAS models $\mu_{t|t-1}=\mu_t$} Again we note that the behavior of the state estimates is very similar to that of the Kalman Filter, and we will further discuss this in section 5. We also note that the value of the scaled score is basically identical to the value of the raw innovations, which is what we would expect from the score for the location of a t distribution as the degrees of freedom approach infinity.
 
-```{r}
+```{r, fig.height=4, fig.cap="Observed values and state estimates from GAS model for $y_1$ (top); scaled score and raw innovations from GAS model for $y_1$ (bottom)."}
+
 # Scaled score = innovation for normal with fisher_inv
 u_1 <- gas_y1$fit$score_tv[, 1]     # already scaled
 innov_1   <- y1 - mu_t1                  # y_t - mu_t1 
@@ -511,7 +514,8 @@ innov_1   <- y1 - mu_t1                  # y_t - mu_t1
 gf <- data.frame(
   t = rep(1:T_len, 2),
   y = c(y1, mu_t1),
-  name = factor(rep(c("y1", "mu_t1"), each = T_len))
+  name = factor(rep(c("y1", "mu_t1"), each = T_len),
+                levels = c("y1", "mu_t1"))
 )
 
 
@@ -524,31 +528,29 @@ df <- data.frame(
 #IMPORTANT!!!! NOTE THAT THE INNOVATIONS HERE ARE *N O T* FROM THE KALMAN FILTER, THEY ARE THE RAW INNOVATIONS
 #COMPUTED FROM THE GAS MODEL!!
 
-ggplot(gf), aes(x = time, y = value, color = name, linewidth = name)) +
+g1 <- ggplot(gf,  aes(x = t, y = y, color = name, linewidth = name)) +
   geom_line() +
   theme_minimal() +
   theme(legend.text = element_text(size = 10)) +
-  labs(
-    title = "Observations vs. Kalman Filter State Estimates",
-    x = "Time") +
-  scale_color_manual(values = c("mupred_1" = "green",
+  scale_color_manual(values = c("mu_t1" = "green",
                                 "y1" = "grey3"),
-                     labels = c("mupred_1" = TeX("$\\mu_{t|t-1}$"), 
+                     labels = c("mu_t1" = TeX("$\\mu_{t|t-1}$"), 
                                 "y1" = TeX("$y_1$")),
                      name = NULL,) +
-  scale_linewidth_discrete(range = c(.5, .75)) +
+  scale_linewidth_discrete(range = c(.3, .5)) +
+  xlab("Time") +
+  ylab("Value") + 
+  scale_x_continuous(position = "top") +
   guides(linewidth = "none") 
 
 
 ### Plot the scaled score vs the innovation from score driven model FOR Y1 ####
 g2 <- ggplot(df, aes(x = t)) +
-  geom_line(aes(y = u, colour = "u"), linewidth = 0.7) +
+  geom_line(aes(y = u, colour = "u"), linewidth = 0.5) +
   geom_line(aes(y = innovation, colour = "v"),
-            linewidth = 0.7,
+            linewidth = 0.5,
             linetype = "dashed") +
   labs(
-    title    = "Scaled Score vs Innovation",
-    subtitle = "t distribution with Fisher-inverse scaling",
     x        = "Time",
     y        = "Value",
     colour   = NULL
@@ -562,7 +564,10 @@ g2 <- ggplot(df, aes(x = t)) +
       "v" = expression(v[t])
     )
   )
+
+g1/g2
 ```
 
 
+##### GAS model for $y_2$
 ## 5.
