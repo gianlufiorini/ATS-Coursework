@@ -339,3 +339,12 @@ df_mupred <- data.frame(t = rep(1:T_len, 2),
                         name = factor(c(rep("y1", T_len),
                                         rep("y2", T_len))))
 
+
+ggplot(data = df_mupred,
+       aes(x = t)) +
+  geom_line(aes(y = mu_gas, col = "red")) +
+  geom_line(aes(y = mu_kalman, col = "green")) +
+  facet_grid(rows = vars(name), scale = "free_y") +
+  ylab("Estimated States") +
+  xlab("Time") 
+
