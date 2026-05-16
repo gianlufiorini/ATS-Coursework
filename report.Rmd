@@ -17,13 +17,14 @@ editor_options:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, comment = NA,
-                      fig.height=3, fig.width=7,
+                      fig.height=3, fig.width=6.5,
                       warning = F, out.extra = "",
                       fig.align = "left",
                       fig.pos = "H")
 
 #loading libraries ####
 library(ggplot2)
+library(gasmodel)
 library(moments)
 library(tseries)
 library(knitr)
@@ -210,7 +211,7 @@ The gaussianity assumption may be unrealistic at times, (as we will see when est
 
 Of course, more complex state space models could be formulated, however it seems sensible to start with the simplest one to see how it does. Besides, it is possible to show that the model described above can be reformulated as an ARMA(1,1) model, which makes its use even more sensible based on what we noted in the preliminary analyses of section 2.
 
-The static parameters in the model, $\omega,\; \phi,\; \sigma_\epsilon,\; \sigma_\eta$, can be estimated using Maximum Likelihood (ML) estimation, whereas the latent states are estimated using a recursive algorithm known as the Kalman Filter.
+The static parameters in the model: $\omega,\; \phi,\; \sigma_\epsilon,\; \sigma_\eta$, can be estimated using Maximum Likelihood (ML) estimation, whereas the latent states are estimated using a recursive algorithm known as the Kalman Filter.
 One can prove the Kalman Filter provides optimal estimates for the states - in a Minimum Mean Squared Error (MMSE) sense - if the gaussianity assumptions are fulfilled. If these fail, the Kalman Filter can still be applied, but it will no longer be optimal.
 
 We now fit the model to both $y_1$ and $y_2$ and comment on the results. For details on the software used for fitting the models, see the Appendix.
@@ -248,7 +249,7 @@ KF1 <- KF(y1,
           theta1_mle$theta_list$hat_sigma_e,
           theta1_mle$theta_list$hat_sigma_eta)
 
-ll_AIC_1 <- c(log.likelihood = KF1$llk, AIC = -2*KF1$llk + 2*nrow(mod_1_coef))
+ll_AIC_1 <- c(log.likelihood = KF1$llk-202*log(2*pi), AIC = -2*(KF1$llk-202*log(2*pi)) + 2*nrow(mod_1_coef))
 
 KF2 <- KF(y2, 
           theta2_mle$theta_list$hat_omega,
@@ -257,7 +258,7 @@ KF2 <- KF(y2,
           theta2_mle$theta_list$hat_sigma_eta)
 
 
-ll_AIC_2 <- c(log.likelihood = KF2$llk, AIC = -2*KF2$llk + 2*nrow(mod_2_coef))
+ll_AIC_2 <- c(log.likelihood = KF2$llk -202*log(2*pi) , AIC = -2*(KF2$llk-202*log(2*pi)) + 2*nrow(mod_2_coef))
 
 
 ```
@@ -302,7 +303,7 @@ ggplot(df1, aes(x = time, y = value, color = name, linewidth = name)) +
   scale_color_manual(values = c("mupred_1" = "green",
                                 "y1" = "grey3"),
                      labels = c("mupred_1" = TeX("$\\mu_{t|t-1}$"), 
-                                "y1" = TeX("$y1$")),
+                                "y1" = TeX("$y_1$")),
                      name = NULL,) +
   scale_linewidth_discrete(range = c(.5, .75)) +
   guides(linewidth = "none") 
@@ -333,6 +334,8 @@ ggplot(df2, aes(x = time, y = value, color = name, linewidth = name)) +
   scale_linewidth_discrete(range = c(.5, .75)) +
   guides(linewidth = "none")
 ```
+
+\newpage
 
 ### 3.2 Model Diagnostics
 As mentioned in the beginning of this section, the Kalman Filter relies on some assumptions, and in particular on gaussianity. If these assumptions were to fail, the filter would lose its optimality. We will now run some diagnostics on the two models to see if the assumptions are fulfilled.
@@ -426,12 +429,12 @@ kurtosis(st_v2)
 \newpage
 
 
-```{r, fig.height=4, fig.cap="ACF for standardized innovations for y1"}
+```{r, fig.cap="ACF for standardized innovations for $y_1$"}
 acf(st_v1, lag= 40, main = NA)
 ```
 
 
-```{r, fig.height=4, fig.cap="ACF for standardized innovations for y2"}
+```{r, fig.cap="ACF for standardized innovations for $y_$2"}
 acf(st_v2, lag= 40, main = NA)
 ```
 
@@ -454,12 +457,112 @@ qqPlot(st_v2,
        main = "qqplot for std. innovations of y2", id = F)
 ```
 
-
-\newpage
-
-
 ## 4. Time-Varying Location Model with Student-t noise
 We concluded the previous section by highlighting the heavy-tailed behavior of the time series $y_2$. This departure from gaussianity makes the use of the Kalman Filter, which assumes gaussian measurement noise, questionable. A more sensible distributional assumption for the measurement noise would be a t distribution, which would better account for the extreme observations.
 However, moving away from gaussianity makes the use of the state-space framework cumbersome, since the likelihood is generally not available in closed form, which leads to computational and inferential challenges. We will thus describe the relationship between our latent signal and the noisy measurements using another kind of models: GAS models. These models allow us to introduce t-distributed measurment noise without additional complications thanks to the fact that the evolution of the parameter is described simply as a function of the past, without the use of any idiosyncratic noise source (e.g. $\eta_t$ in equation (2)), which greatly simplifies estimation and inference.
+
+We will fit a model with Student-t noise to both time series, even though we saw in the previous secttion that $y_1$ is approximately Gaussian, to compare the behavior of the student-t noise model to that of the Gaussian noise model.\\
+Again, letting $y_t$ denote the measurement at time $t$, and letting $\mu_t$ denote the latent signal at time $t$, the statistical model used to represent the process with Student-t noise is:
+$$ 
+\begin{aligned}
+&y_t = \mu_t + \epsilon_t\;,\epsilon_t \stackrel{iid}{\sim} t_\nu(0,\sigma_\epsilon) \footnotemark&\qquad(3)\\
+&\mu_{t+1} = \omega + \phi\mu_{t} + \alpha u_t& \qquad(4)\\
+&u_t = S(\mu_t)s(\mu_t;y_t)& \qquad(5)
+\end{aligned}
+$$
+\footnotetext{A location-scale parametrization of the t distribution is used}
+This model is an example of a Score-Driven model, also known as a Generalized Autoregressive Score (GAS) model. Equation (4) is the "state equation", and describes how the latent signal, (or state), evolves over time. Comparing it to equation (2) from section 3, we are still assuming an autoregressive-type relationship among the values of the signal, but the dynamics of the location are no longer driven by an idiosyncratic error term ($\eta_t$ in eq. (2)). Instead, the latent state is modelled as a deterministic function of the past, and its dynamics are driven by the (scaled) score for the time-varying parameter at time $t$. 
+Equation (3) also is the "measurement equation", and describes how noise is added to the latent state; this time we are now assuming that the noise added to measurements is IID $t_\nu(0, \sigma_\epsilon)$ rather than gaussian, in order to account for the presence of extreme observations.
+Equation (5) describes the scaled score term $u_t$ that is used to update the value of the latent state. The term $s(\mu_t;y_t)$ represents the conditional score for $\mu_t$ at time $t$, ginven the past information $\mathcal{F_{t-1}}$. The term $S(\mu_t)$ is a scaling factor, which in our analyses we set equal to the square root of the inverse fisher information.
+
+The use of the score to make updates can be justified intuitively in terms of improving the model's local fit in terms of the conditional likelihood, given the past infromation, by performing a gradient-ascent step. This updating scheme can be shown to be optimal in a sense that relates to the Kullback-Leibler divergence (Cita Luati).
+
+The static paramaters in the model: $\omega,\; \phi,\; \alpha,\; \sigma_\epsilon,\; \nu$, are estimated using ML estimation. It is worth noting that high estimated values for $\nu$, the degrees of freedom of the t distribution, will characterize a model that is approximately gaussian. Based on the diagnostics in section 3, we would expect a large estimate for $\nu$ in the model for $y_1$, and a small estimate in the model for $y_2$.
+
+We now fit the GAS model for both $y_1$ and $y_2$ and comment on the results. Further details on the software used in the fitting procedure can be found in the Appendix.
+
+### 4.1 Model fitting
+
+##### GAS model for $y_1$
+```{r}
+# Fit the model
+gas_y1 <- gas(y = y1, distr = "t", scaling = "fisher_inv_sqrt")
+
+# Extract quantities
+T_len     <- length(y1)
+mu_t1      <- gas_y1$fit$par_tv[, 1]          # filtered mean
+sigma_est <- (gas_y1$fit$coef_est["var"]) # static variance (if estimated)
+
+gas_y1
+
+```
+We see that the estimates for $\omega$ and $\phi$ are very close to the ones produced by the Kalman Filter. The log-likelihood and the AIC are also very similar, suggesting a very similar fit. These facts are quickly explained if we look at the estimated value for $\nu$. As expected, since $y_1$ is approximately gaussian, the model estimated a very large number of degrees of freedom, making it so that the noise in our measurements is basically gaussian. It is possible to show that a GAS model with gaussian noise and a state space model like the one in section 3 are almost equivalent, (it would suffice to consider the Kalman Filter in its innovation form). The slightly worse fit achieved by the GAS model simply comes from the fact that there are more parameters in need of estimation compared to the state space model with the Kalman Filter.
+On the same note, it is interesting to note that the $\alpha$ parameter in this model is very similar to the steady-state Kalman gain for our Kalman Filter, which is equal to 0.5011753.
+
+Figure 13 shows the graph of state estimates from the GAS model for $y_1$, together with the scaled score values $u_t$ against the raw innovations for the gas model, i.e.  the differences between the observed values and the estimated states: $v_t := y_t -\mu_t\footnotemark$.
+\footnotetext{Note that in GAS models, since the estimated state is a deterministic function of the past, the subscript $\|t-1$ used for the Kalman filter can be (and is) dropped, i.e. for GAS models $\mu_{t|t-1}=\mu_t$}.
+
+```{r}
+# Scaled score = innovation for normal with fisher_inv
+u_1 <- gas_y1$fit$score_tv[, 1]     # already scaled
+innov_1   <- y1 - mu_t1                  # y_t - mu_t1 
+
+# Combine into data frame
+gf <- data.frame(
+  t = rep(1:T_len, 2),
+  y = c(y1, mu_t1),
+  name = factor(rep(c("y1", "mu_t1"), each = T_len))
+)
+
+
+df <- data.frame(
+  t = 1:T_len,
+  u = u_1,
+  innovation = innov_1
+)
+
+#IMPORTANT!!!! NOTE THAT THE INNOVATIONS HERE ARE *N O T* FROM THE KALMAN FILTER, THEY ARE THE RAW INNOVATIONS
+#COMPUTED FROM THE GAS MODEL!!
+
+ggplot(gf), aes(x = time, y = value, color = name, linewidth = name)) +
+  geom_line() +
+  theme_minimal() +
+  theme(legend.text = element_text(size = 10)) +
+  labs(
+    title = "Observations vs. Kalman Filter State Estimates",
+    x = "Time") +
+  scale_color_manual(values = c("mupred_1" = "green",
+                                "y1" = "grey3"),
+                     labels = c("mupred_1" = TeX("$\\mu_{t|t-1}$"), 
+                                "y1" = TeX("$y_1$")),
+                     name = NULL,) +
+  scale_linewidth_discrete(range = c(.5, .75)) +
+  guides(linewidth = "none") 
+
+
+### Plot the scaled score vs the innovation from score driven model FOR Y1 ####
+g2 <- ggplot(df, aes(x = t)) +
+  geom_line(aes(y = u, colour = "u"), linewidth = 0.7) +
+  geom_line(aes(y = innovation, colour = "v"),
+            linewidth = 0.7,
+            linetype = "dashed") +
+  labs(
+    title    = "Scaled Score vs Innovation",
+    subtitle = "t distribution with Fisher-inverse scaling",
+    x        = "Time",
+    y        = "Value",
+    colour   = NULL
+  ) +
+  theme_minimal() +
+  scale_colour_manual(
+    values = c("u" = "steelblue",
+               "v" = "firebrick"),
+    labels = c(
+      "u" = expression(u[t]),
+      "v" = expression(v[t])
+    )
+  )
+```
+
 
 ## 5.
