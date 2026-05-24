@@ -891,8 +891,8 @@ Overall, state-space models estimated using the Kalman filter and GAS models see
 However, when dealing with non-gaussian data, the former tend to struggle due to being excessively sensitive to extreme obsevations.
 The roubustness provided by GAS models is a valueable tool when moving away from gaussian settings, providing much more sensible estimates for the latent state.
 
-## Appendix 
-All code used is available at the following link:
+## Appendix on Code
+All code used is available at the following github link in either the `TS_code_final.R` or in the `report.Rmd` files in the main branch:
 
 <https://github.com/gianlufiorini/ATS-Coursework>
 
