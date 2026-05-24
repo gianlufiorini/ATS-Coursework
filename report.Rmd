@@ -250,7 +250,6 @@ source("ats_lab_2_functions_with_mean.R")
 # Estimating Kalman Filter ####
 #Setting initial values
 theta0 <- c(0,.5,2,2)
-theta0_2 <- c(2.5, .5, 0.4, 0.4)
 
 theta1_mle <- estimator(y1,theta0)
 mod_1_coef <- data.frame(Estimate = unlist(theta1_mle$theta_list),
@@ -260,7 +259,7 @@ mod_1_coef <- data.frame(Estimate = unlist(theta1_mle$theta_list),
   mutate(p_value = 2*(1-pnorm(abs(z_stat))))
 mod_1_coef[3:4, 3:4] <- NA
 
-theta2_mle <- estimator(y2, theta0_2)
+theta2_mle <- estimator(y2, theta0)
 
 mod_2_coef <- data.frame(Estimate = unlist(theta2_mle$theta_list),
                          Std.Err = theta2_mle$vcov |> diag() |> sqrt(),
