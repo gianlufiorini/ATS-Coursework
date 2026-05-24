@@ -12,6 +12,7 @@ editor_options:
   markdown: 
     wrap: sentence
 bibliography: references.bib
+link-citations: true
 ---
 
 \newcommand{\indep}{\perp \!\!\! \perp}
@@ -43,10 +44,10 @@ library(ggpmisc)
 ## 1. Introduction
 
 The fMRI (functional Magnetic Resonance Imaging) dataset contains data about the dynamic activity of each of the 70 brain regions defined in the Desikan atlas for 24 patients, measured thorugh changes in the blood-oxygen-level-dependent (BOLD) signal during resting state fMRI (R-fMRI) sessions.
-The data were gathered during the NKI1 study (INSERT CITATION), where each patient was simply asked to "stay awake with eyes open" while dynamic activity was being measured.
+The data were gathered during the NKI1 study [@Zuo2014], where each patient was simply asked to "stay awake with eyes open" while dynamic activity was being measured.
 There are one or two time series per patient, each comprising 404 measurements of the BOLD signal taken at lags of 1400 ms from one another.
 
-In fMRI data the BOLD signal can be imagined as a proxy measurement for neural activity (REFERENCE RIC), which makes time series models for the time-varying location well-suited for the task of describing the data generating process.
+In fMRI data the BOLD signal can be imagined as a proxy measurement for neural activity [@drew2019vascular], which makes time series models for the time-varying location well-suited for the task of describing the data generating process.
 In fact, neural activity can be imagined as a latent signal evolving over time of which we only observe a noisy version, (the BOLD signal).
 In order to recover the latent signal, we need to apply some type of filtering to the noisy observed values; this is exactly the conceptual setting behind models for the time-varying location.
 
@@ -532,7 +533,7 @@ The term $s(\mu_t;y_t)$ represents the conditional score for $\mu_t$ at time $t$
 The term $S(\mu_t)$ is a scaling factor, which in our analyses we set equal to the square root of the inverse fisher information.
 
 The use of the score to make updates can be justified intuitively in terms of improving the model's local fit in terms of the conditional likelihood, given the past infromation, by performing a gradient-ascent step.
-This updating scheme can be shown to be optimal in a sense that relates to the Kullback-Leibler divergence (Cita Luati).
+This updating scheme can be shown to be optimal in a sense that relates to the Kullback-Leibler divergence [@10.1093/biomet/asad067].
 
 The static paramaters in the model: $\omega,\; \phi,\; \alpha,\; \sigma_\epsilon,\; \nu$, are estimated using ML estimation.
 It is worth noting that high estimated values for $\nu$, the degrees of freedom of the t distribution, will characterize a model that is approximately gaussian.
@@ -897,7 +898,7 @@ All code used is available at the following link:
 
 To fit the state-space model with the Kalman Filter a version of the code provided during the lectures with suitable corrections and modifications was used. This code is in the file: `ats_lab_2_functions_with_mean.R`.
 
-To fit the GAS model the `gasmodel` package (CITE) was used.
+To fit the GAS model the `gasmodel` package [@gasss] was used.
 
 \newpage
 
