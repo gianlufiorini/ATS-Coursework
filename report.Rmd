@@ -11,6 +11,7 @@ output: pdf_document
 editor_options: 
   markdown: 
     wrap: sentence
+bibliography: references.bib
 ---
 
 \newcommand{\indep}{\perp \!\!\! \perp}
