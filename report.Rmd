@@ -517,7 +517,7 @@ However, moving away from gaussianity makes the use of the state-space framework
 We will thus describe the relationship between our latent signal and the noisy measurements using another kind of models: GAS models.
 These models allow us to introduce t-distributed measurement noise without additional complications thanks to the fact that the evolution of the parameter is simply described as a function of the past, without the use of any idiosyncratic error term (i.e. $\eta_t$ in equation (2)), which greatly simplifies estimation and inference.
 
-We will fit a model with Student-t noise to both time series, even though we saw in the previous secttion that $y_1$ is approximately Gaussian, to compare the behavior of the student-t noise model to that of the Gaussian noise model.\\ Again, letting $y_t$ denote the measurement at time $t$, and letting $\mu_t$ denote the latent signal at time $t$, the statistical model used to represent the process with Student-t noise is: $$ 
+We will fit a model with Student-t noise to both time series, even though we saw in the previous secttion that $y_1$ is approximately Gaussian, to compare the behavior of the student-t noise model to that of the Gaussian noise model. Again, letting $y_t$ denote the measurement at time $t$, and letting $\mu_t$ denote the latent signal at time $t$, the statistical model used to represent the process with Student-t noise is: $$ 
 \begin{aligned}
 &y_t = \mu_t + \epsilon_t\;,\epsilon_t \stackrel{iid}{\sim} t_\nu(0,\sigma_\epsilon) \footnotemark&\qquad(3)\\
 &\mu_{t+1} = \omega + \phi\mu_{t} + \alpha u_t& \qquad(4)\\
