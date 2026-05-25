@@ -431,7 +431,7 @@ A Box-Ljung test computed on 20 lags does not reject the hypothesis that the inn
 However, the histogram and the qq-plot show some concering behavior: clearly the distribution of the innovations is heavy tailed, in fact it has a kurtosis of 13.60813; a Shapiro-Wilk test (p-value $\approx$ 0) and a Jarques-Bera test (p-value $\approx$ 0) both strongly reject the normality assumption.
 In light of this, the Kalman Filter assumptions do not seem appropriate, which means the filter is non optimal.
 
-The main issue with using the Kalman Filter with heavy-tailed data is that the filter is very sensitive to extreme observations; if an extreme value is observed at time $t$, the estimated state for time $t+1$, $\mu_{t|t-1}$ will be heavily influenced by that value, which generally reduces the quality of the estimates, because in a sense we are interpreting noise as signal.
+The main issue with using the Kalman Filter with heavy-tailed data is that the filter is very sensitive to extreme observations; if an extreme value is observed at time $t$, the estimated state for time $t+1$, $\mu_{t+1|t}$ will be heavily influenced by that value, which generally reduces the quality of the estimates, because in a sense we are interpreting noise as signal.
 Score driven models try to tackle this issue by using state updates that are robust to extreme values.
 
 \newpage
